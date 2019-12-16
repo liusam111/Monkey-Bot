@@ -1,0 +1,17 @@
+{
+  "name": "discordjsbot",
+  "version": "1.0.0",
+  "description": "Discord Bot in JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sam Liu",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.5.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.7.2"
+  }
+}
