@@ -5,8 +5,8 @@ for security reasons concerning the token. The
 "config.json" is described by the following: <br />
 <br />
 { <br />
-    ..."prefix": "~",<br />
-    ..."token": "INSERT TOKEN HERE" <br />
+    "prefix": "~",<br />
+    "token": "INSERT TOKEN HERE" <br />
 } <br />
 
 
