@@ -4,10 +4,10 @@ bot's token. I have omitted the "config.json" file
 for security reasons concerning the token. The
 "config.json" is described by the following: <br />
 ```
-{ <br />
-    "prefix": "~",<br />
-    "token": "INSERT TOKEN HERE" <br />
-} <br />
+{
+    "prefix": "~",
+    "token": "INSERT TOKEN HERE"
+}
 ```
 
 NodeJS Modules Needed: <br />
