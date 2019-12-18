@@ -9,7 +9,7 @@ module.exports = {
         }
 
         const filter = m => m.author.id == message.author.id;
-        const collector = message.channel.createMessageCollector(filter, {time: 10000});
+        const collector = message.channel.createMessageCollector(filter, {maxMatches: 5, time: 10000});
 
         //Min/max values that the user/bot can guess
         const minValUser = 50;
@@ -19,20 +19,19 @@ module.exports = {
 
         message.channel.send(`Guess a number between ${minValUser} and ${maxValUser}. You win if your number is higher.`);
 
-
         collector.on("collect", m => {
 
             //Non-numeric characters in args
             if(!m.content.match(/^[0-9]+$/)){
-                collector.stop("Error");
-                return message.channel.send("I'm ending the game. That's not a number.");
+                collector.stop("error_num");
+                return;
             }
 
             //Invalid range
             const num = parseInt(m.content);
             if(num < minValUser || num > maxValUser){
-                collector.stop("Error");
-                return message.channel.send("I'm ending the game. Give me a better number.");
+                collector.stop("error_range");
+                return;
             }
 
             const botNum = Math.floor(Math.random() * maxValBot) + minValBot;
@@ -43,14 +42,23 @@ module.exports = {
             } else {
                 message.channel.send(`My number was ${botNum}. You suck.`);
             }
-            
-            collector.stop("End Game");
+
         });
+
 
         collector.on("end", (collected, reason) => {
             if(reason == "time"){
                 message.channel.send("This game is over. I don't have all day.");
             }
+
+            if(reason == "error_range"){
+                message.channel.send("I'm ending the game. Give me a better number.");
+            }
+
+            if(reason == "error_num"){
+                message.channel.send("I'm ending the game. That's not a number.");
+            }
+
             if(global.active.has(message.author.id)){
                 return global.active.delete(message.author.id);
             }

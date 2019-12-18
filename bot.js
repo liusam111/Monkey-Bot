@@ -27,7 +27,7 @@ client.on("message", message => {
 
 
 
-    //Don't allow bot to run commands
+    //Don't allow bots to run commands
     if(message.author.bot){
         return;
     }
@@ -69,10 +69,10 @@ client.on("message", message => {
     const original = message.content.slice(prefix.length).split(" ");
     const args = message.content.slice(prefix.length).split(/ +/);
     
-    //Take first element off args and convert to lowercase
+    //Take first element (command) off args and convert to lowercase
     const commandName = args.shift().toLowerCase(); 
 
-    //Take first element off original
+    //Take first element (command) off original
     original.shift();
 
 
@@ -107,8 +107,9 @@ client.on("message", message => {
     }
 
     
+    //Run commands
     try{
-        if(commandName == "say"){
+        if(commandName == "say" || commandName == "sneakysay"){
             command.execute(message, original);
         } else if(command.limit_user){
             global.active.set(message.author.id);
@@ -122,6 +123,7 @@ client.on("message", message => {
 
             command.execute(message,args);
         }
+
     //Handle any errors gracefully
     } catch(error) {
         console.error(error);
