@@ -38,32 +38,27 @@ var database = mysql.createConnection({
 });
 
 database.connect((err) => {
-    if(err){
-        throw err;
-    }
+    if(err) console.log(err);
     console.log("Connected to Database!");
 });
 
 client.on("message", message => {
 
     //Don't allow bots to run commands
-    if(message.author.bot){
-        return;
-    }
+    if(message.author.bot) return;
+
+    //Increment exp
+    client.commands.get("incrementXP").execute(message, null, null, database);
 
     //Log messages
     fs.appendFile("log.txt", ("[#" + message.channel.name + "] " + message.author.tag + ": " + message + "\n"), (err) => {
-        if(err){
-            console.log(err);
-        }
+        if(err) console.error(err);
     });
 
     const currentActive = client.active.has(message.author.id);
 
     //Exit early if user is in the middle of a Collector command
-    if(currentActive){
-        return;
-    }
+    if(currentActive) return;
 
     //Respond to mentions
     if(message.content.match(/<@!?(651523467174346804)>/)){
@@ -96,9 +91,7 @@ client.on("message", message => {
     const command = client.commands.get(commandName);
 
     //Exit early if command doesn't exist or can't be run
-    if(!command || command.cannotRun){
-        return;
-    }
+    if(!command || command.cannotRun) return;
 
 
     if(!cooldowns.has(command.name)){
@@ -123,7 +116,7 @@ client.on("message", message => {
         setTimeout(() => timestamps.delete(message.author.id), cooldownTime);
     }
 
-    
+
     //Run commands
     try{
         if(command.needsOriginal){
@@ -138,7 +131,7 @@ client.on("message", message => {
                 return message.reply("Get that command out of my DMs.");
             }
 
-            command.execute(message,args);
+            command.execute(message, args, client, database);
         }
 
     //Handle any errors gracefully
@@ -148,3 +141,25 @@ client.on("message", message => {
     }
     
 });
+
+getFirstMention = function(args, client){
+    for(let i = 0; i < args.length; i++){
+        let mention = args[i];
+        if(mention.startsWith("<@") && mention.endsWith(">")){
+            mention = mention.slice(2, -1);
+
+            if(mention.startsWith("!")){
+                mention = mention.slice(1);
+            }
+
+            let mentionedUser = client.users.get(mention);
+
+            //If user exists
+            if(mentionedUser){
+                return mentionedUser;
+            }
+        }
+    }
+
+    return;
+}

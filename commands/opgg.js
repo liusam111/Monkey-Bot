@@ -10,12 +10,12 @@ module.exports = {
             const cheerio = require("cheerio");
             const Discord = require("discord.js");
 
-            var searchName = args.join(" ");
+            let searchName = args.join(" ");
             //Handle non-ASCII characters for URL request
             const url = encodeURI("https://na.op.gg/summoner/userName=" + searchName);
             
-            request(url, (error, response, html) => {
-                if(!error && response.statusCode == global.VALID_STATUS){
+            request(url, (err, response, html) => {
+                if(!err && response.statusCode == global.VALID_STATUS){
                     const $ = cheerio.load(html);
                     
                     const username = $('div[class="Information"] > span[class ="Name"]').text();
@@ -32,7 +32,7 @@ module.exports = {
                     const rankIcon = "https:" + $('div[class="TierBox Box"] > div > div > img').attr("src");
                     
 
-                    var embed;
+                    let embed;
                     //Unranked Player
                     if(!ladderHTML.length){
                         

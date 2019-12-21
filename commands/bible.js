@@ -10,8 +10,8 @@ module.exports = {
         
         const url = "https://dailyverses.net/random-bible-verse";
 
-        request(url, (error, response, html) => {
-            if(!error && response.statusCode == global.VALID_STATUS){
+        request(url, (err, response, html) => {
+            if(!err && response.statusCode == global.VALID_STATUS){
                 const $ = cheerio.load(html);
                 
                 //Random number from 0 to CHANCE-1

@@ -15,4 +15,9 @@ NodeJS Modules Needed: <br />
 cheerio <br /> 
 discord.js <br />
 request <br />
-mysql
+mysql <br />
+<br />
+MySQL Database/Table Initialization Info: <br />
+Database Name: monkeybot <br />
+Table Name: userInfo <br />
+Columns: id, xp, league, region <br />

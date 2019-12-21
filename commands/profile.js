@@ -4,31 +4,26 @@ module.exports = {
     name: "profile",
     description: "Shows mentioned user's profile information, or the author's profile if no one is mentioned",
     guildOnly: true,
-    execute(message){
-        if(message.mentions.users.size > 1){
-            message.reply("One person at a time, buddy");
-        } else {
+    execute(message, args){
+        let currUser = message.author;
+        if(message.mentions.users.size){
+            currUser = getFirstMention(args, client);
+        }
 
-            var taggedUser = message.author;
-            if(message.mentions.users.size){
-                taggedUser = message.mentions.users.first();
-            }
+        const Discord = require("discord.js");
+        const timeSinceCreation = (Date.now() - currUser.createdTimestamp) / (DAYS_TO_SECS);
 
-            const Discord = require("discord.js");
-            const timeSinceCreation = (Date.now() - taggedUser.createdTimestamp) / (DAYS_TO_SECS);
-
-            // Created embed to display profile
-            const embed = new Discord.RichEmbed()
-                .setColor("#fffff0")
-                .setTitle(`${taggedUser.tag}'s Profile`)
-                .setThumbnail(taggedUser.displayAvatarURL)
-                .addField("ID:", taggedUser.id)
-                .addField("Created At: ", taggedUser.createdAt)
-                .addField("Days Since Creation: ", timeSinceCreation.toFixed(0))
-                .addField("Profile Picture: ", taggedUser.displayAvatarURL);
+        // Created embed to display profile
+        const embed = new Discord.RichEmbed()
+            .setColor("#fffff0")
+            .setTitle(`${currUser.tag}'s Profile`)
+            .setThumbnail(currUser.displayAvatarURL)
+            .addField("ID:", currUser.id)
+            .addField("Created At: ", currUser.createdAt)
+            .addField("Days Since Creation: ", timeSinceCreation.toFixed(0))
+            .addField("Profile Picture: ", currUser.displayAvatarURL);
 
                 
-            message.channel.send(embed);
-        }
+        message.channel.send(embed);
     }
 }
