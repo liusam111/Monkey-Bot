@@ -18,7 +18,7 @@ module.exports = {
                 //Send level up message
                 if(currExp % EXP_MAX == 0){
                     let level = Math.floor(currExp / EXP_MAX) + 1;
-                    message.reply(` is now level ${level}`);
+                    message.channel.send(`<@${message.author.id}> is now Level ${level}!`);
                 }
             }
             database.query(sql);

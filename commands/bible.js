@@ -11,7 +11,7 @@ module.exports = {
         const url = "https://dailyverses.net/random-bible-verse";
 
         request(url, (err, response, html) => {
-            if(!err && response.statusCode == global.VALID_STATUS){
+            if(!err && response.statusCode == VALID_STATUS){
                 const $ = cheerio.load(html);
                 
                 //Random number from 0 to CHANCE-1
@@ -24,8 +24,10 @@ module.exports = {
                 }
 
                 //Get quote
-                const quote = $('div[class="bibleVerse"]').contents().first().text();
-                const chapter = $('div[class="bibleChapter"] > a').first().text();
+                const quote = $('div.bibleVerse').first().contents().filter(function() {
+                    return this.type == "text";
+                }).text();
+                const chapter = $('div.bibleChapter > a').contents().first().text();
 
                 const send = `\`\`\`${quote} \n\n---${chapter}--- \`\`\``
                 message.channel.send(send);

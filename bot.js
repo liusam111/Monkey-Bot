@@ -8,12 +8,13 @@ const {prefix, token, sqlpass} = require("./config.json");
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 client.active = new Discord.Collection();
+client.messageRepeat = [];
 client.login(token);
 
 //Define constants
 const DEFAULT_COOLDOWN = 3;
 const SECS_TO_MS = 1000;
-global.VALID_STATUS = 200;
+VALID_STATUS = 200;
 
 //Get list of command files
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
@@ -70,19 +71,21 @@ client.on("message", message => {
         client.commands.get("no u").execute(message);
     }
 
-    //Only run commands with prefix
+
+
+    //Only run commands with prefix, but check repeat for commands without prefix
     if(!message.content.startsWith(prefix)){
+        client.commands.get("repeat").execute(message, null, client);
         return;
     }
 
 
     console.log(message.content);
-
-
+    
     //Slice off prefix, split message by spacebars
     const original = message.content.slice(prefix.length).split(" ");
     const args = message.content.slice(prefix.length).split(/ +/);
-    
+
     //Take first element (command) off
     const commandName = args.shift().toLowerCase(); 
     original.shift();

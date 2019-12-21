@@ -15,10 +15,10 @@ module.exports = {
             const url = encodeURI("https://na.op.gg/summoner/userName=" + searchName);
             
             request(url, (err, response, html) => {
-                if(!err && response.statusCode == global.VALID_STATUS){
+                if(!err && response.statusCode == VALID_STATUS){
                     const $ = cheerio.load(html);
                     
-                    const username = $('div[class="Information"] > span[class ="Name"]').text();
+                    const username = $("div.Information > span.Name").text();
 
                     //Length 0 means username doesn't exist
                     if(!username.length){
@@ -27,10 +27,9 @@ module.exports = {
                     }
 
                     //Get information about user
-                    const ladderHTML = $('div[class="LadderRank"] > a');
-                    const summonerIcon = "https:" +  $('div[class="ProfileIcon"] > img').attr("src");
-                    const rankIcon = "https:" + $('div[class="TierBox Box"] > div > div > img').attr("src");
-                    
+                    const ladderHTML = $("div.LadderRank > a");
+                    const summonerIcon = "https:" +  $("div.ProfileIcon > img").attr("src");
+                    const rankIcon = "https:" + $("div.TierBox.Box > div > div > img").attr("src");
 
                     let embed;
                     //Unranked Player
@@ -47,12 +46,12 @@ module.exports = {
                     //Ranked Player
                     } else {
                         //Get ranked information about user
-                        const rank = $('div[class="TierRank"]').text();
-                        const wins = $('div[class="TierInfo"] > span[class="WinLose"] > span[class="wins"]').text().replace("W","");
-                        const losses = $('div[class="TierInfo"] > span[class="WinLose"] > span[class="losses"]').text().replace("L","");
-                        const winRatio = $('div[class="TierInfo"] > span[class="WinLose"] > span[class="winratio"]').text().replace("Win Ratio ","");
-                        const ladderRank = ladderHTML.text().replace("Ladder Rank ","");
-                        const lp = $('div[class="TierInfo"] > span[class="LeaguePoints"]').text();
+                        const rank = $("div.TierRank").text();
+                        const wins = $("div.TierInfo > span.WinLose > span.wins").text().replace("W","");
+                        const losses = $("div.TierInfo > span.WinLose > span.losses").text().replace("L","");
+                        const winRatio = $("div.TierInfo > span.WinLose > span.winratio").text().replace("Win Ratio ","");
+                        const ladderRank = ladderHTML.text().replace("Ladder Rank");
+                        const lp = $("div.TierInfo > span.LeaguePoints").text();
                         const lpText = rank + ", " + lp.replace("\n", "");
 
                         embed = new Discord.RichEmbed()
