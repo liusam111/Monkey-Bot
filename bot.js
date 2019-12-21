@@ -13,7 +13,9 @@ client.login(token);
 
 //Define constants
 const DEFAULT_COOLDOWN = 3;
+const FUN_FACT_COOLDOWN = 15;
 const SECS_TO_MS = 1000;
+const SECS_TO_MINS = 60000;
 VALID_STATUS = 200;
 
 //Get list of command files
@@ -24,11 +26,6 @@ for(const file of commandFiles){
     const command = require(`./commands/${file}`);
     client.commands.set(command.name, command);
 }
-
-//Startup message, triggers once upon login
-client.once("ready", () => {
-    console.log("Ready!");
-});
 
 //Connect to MySQL Database
 var database = mysql.createConnection({
@@ -41,6 +38,19 @@ var database = mysql.createConnection({
 database.connect((err) => {
     if(err) console.log(err);
     console.log("Connected to Database!");
+});
+
+//Startup message, triggers once upon login
+client.once("ready", () => {
+    console.log("Ready!");
+    const factcycle = require("./commands/factcycle.js");
+    setInterval(() => {
+        let guildList = [...client.guilds.values()].map((guild) => {
+            factcycle.execute(guild.id, client, database);
+            console.log("Fact Sent!");
+        });
+    }, FUN_FACT_COOLDOWN * SECS_TO_MINS);
+
 });
 
 client.on("message", message => {
@@ -145,24 +155,46 @@ client.on("message", message => {
     
 });
 
-getFirstMention = function(args, client){
+
+
+
+/* 
+ * Get the first mention of the specified type
+ * Type defaults to user
+ * Valid types: "user", "channel"
+ * Does not support "role"
+ */
+getFirstMention = function(args, client, type){
+
+    let prefix;
+    //Get correct prefix for each mention type, defaults to user
+    if(type == "channel"){
+        prefix = "<#";
+    } else {
+        prefix = "<@";
+    }
+
     for(let i = 0; i < args.length; i++){
         let mention = args[i];
-        if(mention.startsWith("<@") && mention.endsWith(">")){
+        if(mention.startsWith(prefix) && mention.endsWith(">")){
             mention = mention.slice(2, -1);
 
-            if(mention.startsWith("!")){
-                mention = mention.slice(1);
+            let mentionResult;
+
+            if(type == "channel"){
+                mentionResult = client.channels.get(mention);
+            } else {
+                if(mention.startsWith("!")){
+                    mention = mention.slice(1);
+                }
+
+                mentionResult = client.users.get(mention);
             }
 
-            let mentionedUser = client.users.get(mention);
-
-            //If user exists
-            if(mentionedUser){
-                return mentionedUser;
+            //If mentioned user/channel exists
+            if(mentionResult){
+                return mentionResult;
             }
         }
     }
-
-    return;
 }

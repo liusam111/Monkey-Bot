@@ -17,7 +17,11 @@ discord.js <br />
 request <br />
 mysql <br />
 <br />
-MySQL Database/Table Initialization Info: <br />
+MySQL Database Info: <br />
 Database Name: monkeybot <br />
-Table Name: userInfo <br />
+<br />
+Table Name: userinfo <br />
 Columns: id, xp, league, region <br />
+<br />
+Table Name: mainchannel <br />
+Columns: guildid, mainchannelid<br />

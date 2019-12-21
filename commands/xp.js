@@ -6,16 +6,13 @@ module.exports = {
     execute(message, args, client, database){
         const Discord = require("discord.js");
 
-        var currUser = message.author;
-        if(message.mentions.users.size){
-            currUser = getFirstMention(args, client);
-        }
+        var currUser = getFirstMention(args, client, "user") || message.author;
 
-        database.query(`SELECT * FROM userInfo WHERE id = '${currUser.id}'`, (err, rows) => {
+        database.query(`SELECT * FROM userinfo WHERE id = '${currUser.id}'`, (err, rows) => {
             if(err) console.error(err);
 
             let currExp;
-            if(rows.length < 1){
+            if(!rows.length){
                 currExp = 0;
             } else {
                 currExp = rows[0].xp;

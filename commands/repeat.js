@@ -14,6 +14,8 @@ module.exports = {
             client.messageRepeat.shift();
         }
         
+
+        //Check that the last 3 messages are the same message by different users
         if(client.messageRepeat.length == MIN_REPEATS){
             let user1 = client.messageRepeat[0][0];
             let user2 = client.messageRepeat[1][0];

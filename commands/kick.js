@@ -6,7 +6,7 @@ module.exports = {
         if(!message.mentions.users.size){
             message.reply("Give me someone to kick.");
         } else {
-            const taggedUser = getFirstMention(args, client);
+            const taggedUser = getFirstMention(args, client, "user");
             message.channel.send(`<@${taggedUser.id}> has been kicked in the groin.`);
 
         }

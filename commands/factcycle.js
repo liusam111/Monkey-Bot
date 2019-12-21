@@ -1,7 +1,8 @@
 module.exports = {
-    name: "fact",
-    description: "Generates a random fun fact",
-    execute(message){
+    name: "factcycle",
+    description: "Generates a random fun fact every 5 minutes in each server's main channel",
+    cannotRun: true,
+    execute(guildId, client, database){
         //Dependencies
         const cheerio = require("cheerio");
         const request = require("request");
@@ -15,6 +16,7 @@ module.exports = {
 
                 const fact = $("div#f > div#z").first().contents().filter(function() {
                     return this.type == "text";
+
                 }).text();
 
                 const embed = new Discord.RichEmbed()
@@ -22,7 +24,19 @@ module.exports = {
                     .setTitle("Fun Fact:")
                     .setDescription(fact);
                     
-                message.channel.send(embed);
+
+                database.query(`SELECT * FROM mainchannel WHERE guildid = ${guildId} `, (err, rows) => {
+                    if(err) throw err;
+
+                    if(rows.length){
+                        let mainChannelId = rows[0].mainchannelid;
+                        let currGuild = client.guilds.get(guildId);
+                        let mainChannel = currGuild.channels.get(mainChannelId);
+                        mainChannel.send(embed);
+                    }
+                    
+                });
+                
             }
 
         });

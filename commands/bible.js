@@ -3,7 +3,7 @@ const CHANCE = 100;
 module.exports = {
     name: "bible",
     description: "Send a random bible quote",
-    execute(message, args){
+    execute(message){
         //Dependencies
         const request = require("request");
         const cheerio = require("cheerio");
