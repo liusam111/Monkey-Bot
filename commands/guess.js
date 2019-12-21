@@ -1,23 +1,25 @@
+//Min and max values the user and bot can guess
+const MIN_VAL_USER = 50;
+const MAX_VAL_USER = 150;
+const MIN_VAL_BOT = 1;
+const MAX_VAL_BOT = 200;
+
 module.exports = {
     name: "guess",
     description: "Number guessing game",
     limit_user: true,
-    execute(message, args){
+    execute(message, args, client){
         if(args.length){
             message.channel.send("Screw your parameters.");
-            return global.active.delete(message.author.id);
-        }
+            return client.active.delete(message.author.id);
+        }     
 
         const filter = m => m.author.id == message.author.id;
-        const collector = message.channel.createMessageCollector(filter, {maxMatches: 5, time: 10000});
+        const collector = message.channel.createMessageCollector(filter, {maxMatches: 1, time: 10000});
 
-        //Min/max values that the user/bot can guess
-        const minValUser = 50;
-        const maxValUser = 150;
-        const minValBot = 1;
-        const maxValBot = 200;
 
-        message.channel.send(`Guess a number between ${minValUser} and ${maxValUser}. You win if your number is higher.`);
+
+        message.channel.send(`Guess a number between ${MIN_VAL_USER} and ${MAX_VAL_USER}. You win if your number is higher.`);
 
         collector.on("collect", m => {
 
@@ -29,12 +31,12 @@ module.exports = {
 
             //Invalid range
             const num = parseInt(m.content);
-            if(num < minValUser || num > maxValUser){
+            if(num < MIN_VAL_USER || num > MAX_VAL_USER){
                 collector.stop("error_range");
                 return;
             }
 
-            const botNum = Math.floor(Math.random() * maxValBot) + minValBot;
+            const botNum = Math.floor(Math.random() * MAX_VAL_BOT) + MIN_VAL_BOT;
 
             //Number comparison logic for game win/lose
             if(num > botNum){
@@ -59,8 +61,8 @@ module.exports = {
                 message.channel.send("I'm ending the game. That's not a number.");
             }
 
-            if(global.active.has(message.author.id)){
-                return global.active.delete(message.author.id);
+            if(client.active.has(message.author.id)){
+                return client.active.delete(message.author.id);
             }
         });
     }

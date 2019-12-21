@@ -1,12 +1,19 @@
+//Define dependencies
 const fs = require("fs");
 const Discord = require("discord.js");
-const {prefix, token} = require("./config.json");
+const mysql = require("mysql");
+const {prefix, token, sqlpass} = require("./config.json");
+
+//Set up client
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
-global.active = new Discord.Collection();
-
-//Login Using Token
+client.active = new Discord.Collection();
 client.login(token);
+
+//Define constants
+const DEFAULT_COOLDOWN = 3;
+const SECS_TO_MS = 1000;
+global.VALID_STATUS = 200;
 
 //Get list of command files
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
@@ -22,10 +29,22 @@ client.once("ready", () => {
     console.log("Ready!");
 });
 
+//Connect to MySQL Database
+var database = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: sqlpass,
+    database: "monkeybot"
+});
+
+database.connect((err) => {
+    if(err){
+        throw err;
+    }
+    console.log("Connected to Database!");
+});
 
 client.on("message", message => {
-
-
 
     //Don't allow bots to run commands
     if(message.author.bot){
@@ -39,7 +58,7 @@ client.on("message", message => {
         }
     });
 
-    const currentActive = global.active.has(message.author.id);
+    const currentActive = client.active.has(message.author.id);
 
     //Exit early if user is in the middle of a Collector command
     if(currentActive){
@@ -69,19 +88,17 @@ client.on("message", message => {
     const original = message.content.slice(prefix.length).split(" ");
     const args = message.content.slice(prefix.length).split(/ +/);
     
-    //Take first element (command) off args and convert to lowercase
+    //Take first element (command) off
     const commandName = args.shift().toLowerCase(); 
-
-    //Take first element (command) off original
     original.shift();
 
 
-    //Exit early if command doesn't exist
-    if(!client.commands.has(commandName)){
+    const command = client.commands.get(commandName);
+
+    //Exit early if command doesn't exist or can't be run
+    if(!command || command.cannotRun){
         return;
     }
-
-    const command = client.commands.get(commandName);
 
 
     if(!cooldowns.has(command.name)){
@@ -91,13 +108,13 @@ client.on("message", message => {
     const now = Date.now();
     const timestamps = cooldowns.get(command.name);
     //Either set as defined cooldown time or 3 as default (in secs)
-    const cooldownTime = (command.cooldown || 3) * 1000; 
+    const cooldownTime = (command.cooldown || DEFAULT_COOLDOWN) * SECS_TO_MS; 
 
     if(timestamps.has(message.author.id)){
         const expireTime = timestamps.get(message.author.id) + cooldownTime;
 
         if(now < expireTime){
-            const timeLeft = (expireTime - now) / 1000;
+            const timeLeft = (expireTime - now) / SECS_TO_MS;
             return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing \`${prefix}${command.name}\``)
         }
     } else {
@@ -109,11 +126,11 @@ client.on("message", message => {
     
     //Run commands
     try{
-        if(commandName == "say" || commandName == "sneakysay"){
-            command.execute(message, original);
+        if(command.needsOriginal){
+            command.execute(message, original, client, database);
         } else if(command.limit_user){
-            global.active.set(message.author.id);
-            command.execute(message, args);
+            client.active.set(message.author.id);
+            command.execute(message, args, client, database);
         } else {
             
             //Check if command is only available on server text channels
@@ -129,7 +146,5 @@ client.on("message", message => {
         console.error(error);
         message.reply("Error executing command");
     }
-
-
     
 });

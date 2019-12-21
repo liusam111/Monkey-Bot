@@ -15,7 +15,7 @@ module.exports = {
             const url = encodeURI("https://na.op.gg/summoner/userName=" + searchName);
             
             request(url, (error, response, html) => {
-                if(!error && response.statusCode == 200){
+                if(!error && response.statusCode == global.VALID_STATUS){
                     const $ = cheerio.load(html);
                     
                     const username = $('div[class="Information"] > span[class ="Name"]').text();

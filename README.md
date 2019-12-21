@@ -1,16 +1,18 @@
 If you would like the bot to work, you will need to
-replace the "token" field in "config.json" with your
-bot's token. I have omitted the "config.json" file
-for security reasons concerning the token. The
+replace the "token" and "sqlpass" field in "config.json"
+with your bot's token and MySQL database password. I have 
+omitted the "config.json" file for security reasons. The
 "config.json" is described by the following: <br />
 ```
 {
     "prefix": "~",
     "token": "INSERT TOKEN HERE"
+    "sqlpass": "INSERT PASSWORD HERE"
 }
 ```
 
 NodeJS Modules Needed: <br />
 cheerio <br /> 
 discord.js <br />
-request
+request <br />
+mysql

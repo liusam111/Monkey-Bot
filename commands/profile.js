@@ -1,3 +1,5 @@
+const DAYS_TO_SECS = 86400000;
+
 module.exports = {
     name: "profile",
     description: "Shows mentioned user's profile information, or the author's profile if no one is mentioned",
@@ -13,8 +15,7 @@ module.exports = {
             }
 
             const Discord = require("discord.js");
-            const numSecsinDay = 86400000;
-            const timeSinceCreation = (Date.now() - taggedUser.createdTimestamp) / (numSecsinDay);
+            const timeSinceCreation = (Date.now() - taggedUser.createdTimestamp) / (DAYS_TO_SECS);
 
             // Created embed to display profile
             const embed = new Discord.RichEmbed()

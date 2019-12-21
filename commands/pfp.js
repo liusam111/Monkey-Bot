@@ -1,3 +1,5 @@
+const MAX_MENTIONS = 3;
+
 module.exports = {
     name: "pfp",
     description: "Shows mentioned user's profile picture (max 3), or the author's profile picture if no one is mentioned",
@@ -12,7 +14,7 @@ module.exports = {
             ]});
         
         //More than 3 mentioned
-        }else if(message.mentions.user.size > 3) {
+        }else if(message.mentions.user.size > MAX_MENTIONS) {
             message.channel.send("Let's not spam things up. Give me 3 or less people.");
 
         } else {
