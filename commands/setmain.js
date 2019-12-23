@@ -6,19 +6,23 @@ module.exports = {
         if(!message.mentions.channels.size){
             message.channel.send("Please mention a channel (#channelname)");
         } else {
+
             let newMain = getFirstMention(args, client, "channel").id;
             let currGuild = message.guild.id;
 
             //Save main channel id to database
-            database.query(`SELECT * FROM mainchannel WHERE guildid = '${currGuild}'`, (err, rows) => {
+            database.query(`SELECT * FROM mainchannel 
+                            WHERE guildid = '${currGuild}'`, (err, rows) => {
                 if(err) console.error(err);
 
                 let sql;
  
                 if(!rows.length){
-                    sql = `INSERT INTO mainchannel (guildid, mainchannelid) VALUES(${currGuild}, ${newMain})`;
+                    sql = `INSERT INTO mainchannel (guildid, mainchannelid, enable) 
+                           VALUES('${currGuild}', '${newMain}', ${true})`;
                 } else {
-                    sql = `UPDATE mainchannel SET mainchannelid = '${newMain}' WHERE guildid = '${currGuild}'`;
+                    sql = `UPDATE mainchannel SET mainchannelid = '${newMain}' 
+                           WHERE guildid = '${currGuild}'`;
                 }
 
                 database.query(sql);

@@ -47,7 +47,6 @@ module.exports = {
 
         });
 
-
         collector.on("end", (collected, reason) => {
             if(reason == "time"){
                 message.channel.send("This game is over. I don't have all day.");

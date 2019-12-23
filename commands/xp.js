@@ -5,19 +5,14 @@ module.exports = {
     description: "Shows user's level and xp",
     execute(message, args, client, database){
         const Discord = require("discord.js");
-
         var currUser = getFirstMention(args, client, "user") || message.author;
 
-        database.query(`SELECT * FROM userinfo WHERE id = '${currUser.id}'`, (err, rows) => {
+        database.query(`SELECT * FROM userinfo 
+                        WHERE id = '${currUser.id}'`, (err, rows) => {
             if(err) console.error(err);
 
-            let currExp;
-            if(!rows.length){
-                currExp = 0;
-            } else {
-                currExp = rows[0].xp;
-            }
-
+            let currExp = !rows.length ?  0 : rows[0].exp;
+            
             //Different level and exp for bots
             let expString;
             let level;

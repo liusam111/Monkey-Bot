@@ -13,7 +13,7 @@ client.login(token);
 
 //Define constants
 const DEFAULT_COOLDOWN = 3;
-const FUN_FACT_COOLDOWN = 15;
+const FUN_FACT_COOLDOWN = 20;
 const SECS_TO_MS = 1000;
 const SECS_TO_MINS = 60000;
 VALID_STATUS = 200;
@@ -43,11 +43,11 @@ database.connect((err) => {
 //Startup message, triggers once upon login
 client.once("ready", () => {
     console.log("Ready!");
-    const factcycle = require("./commands/factcycle.js");
+    const factcycle = require("./commands/automatic_facts.js");
     setInterval(() => {
-        let guildList = [...client.guilds.values()].map((guild) => {
+        console.log("Fact Sent!");
+        [...client.guilds.values()].map((guild) => {
             factcycle.execute(guild.id, client, database);
-            console.log("Fact Sent!");
         });
     }, FUN_FACT_COOLDOWN * SECS_TO_MINS);
 
