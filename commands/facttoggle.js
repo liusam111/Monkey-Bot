@@ -3,7 +3,12 @@ module.exports = {
     description: "Enables/Disables automatics facts in the server",
     guildOnly: true,
     execute(message, args, client, database){
-        
+        //Check permissions
+        if(!isModerator(message.member)){
+            return message.send("You do not have permission to use this command.");
+        }
+
+
         database.query(`SELECT * FROM mainchannel 
                         WHERE guildid = '${message.guild.id}'`, (err, rows) => {
             if(err) throw err;

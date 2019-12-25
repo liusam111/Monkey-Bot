@@ -6,13 +6,12 @@ module.exports = {
     execute(message, args, client, database){
         const Discord = require("discord.js");
         var currUser = getFirstMention(args, client, "user") || message.author;
-
         database.query(`SELECT * FROM userinfo 
                         WHERE id = '${currUser.id}'`, (err, rows) => {
             if(err) console.error(err);
 
-            let currExp = !rows.length ?  0 : rows[0].exp;
-            
+            let currExp = !rows.length ?  0 : rows[0].xp;
+
             //Different level and exp for bots
             let expString;
             let level;

@@ -3,6 +3,11 @@ module.exports = {
     description: "Sets the main channel for the bot, only available to server mods",
     guildOnly: true,
     execute(message, args, client, database){
+        //Check permissions
+        if(!isModerator(message.member)){
+            return message.channel.send("You do not have permission to use this command.");
+        }
+
         if(!message.mentions.channels.size){
             message.channel.send("Please mention a channel (#channelname)");
         } else {

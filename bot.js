@@ -24,7 +24,9 @@ const cooldowns = new Discord.Collection();
 
 for(const file of commandFiles){
     const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
+    if(command.name){
+        client.commands.set(command.name, command);
+    }
 }
 
 //Connect to MySQL Database
@@ -154,47 +156,3 @@ client.on("message", message => {
     }
     
 });
-
-
-
-
-/* 
- * Get the first mention of the specified type
- * Type defaults to user
- * Valid types: "user", "channel"
- * Does not support "role"
- */
-getFirstMention = function(args, client, type){
-
-    let prefix;
-    //Get correct prefix for each mention type, defaults to user
-    if(type == "channel"){
-        prefix = "<#";
-    } else {
-        prefix = "<@";
-    }
-
-    for(let i = 0; i < args.length; i++){
-        let mention = args[i];
-        if(mention.startsWith(prefix) && mention.endsWith(">")){
-            mention = mention.slice(2, -1);
-
-            let mentionResult;
-
-            if(type == "channel"){
-                mentionResult = client.channels.get(mention);
-            } else {
-                if(mention.startsWith("!")){
-                    mention = mention.slice(1);
-                }
-
-                mentionResult = client.users.get(mention);
-            }
-
-            //If mentioned user/channel exists
-            if(mentionResult){
-                return mentionResult;
-            }
-        }
-    }
-}
