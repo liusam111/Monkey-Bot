@@ -4,6 +4,8 @@ const MAX_VAL_USER = 150;
 const MIN_VAL_BOT = 1;
 const MAX_VAL_BOT = 200;
 
+const TIME_LIMIT_MS = 10000;
+
 module.exports = {
     name: "guess",
     description: "Number guessing game",
@@ -14,14 +16,14 @@ module.exports = {
             return client.active.delete(message.author.id);
         }     
 
-        const filter = m => m.author.id == message.author.id;
-        const collector = message.channel.createMessageCollector(filter, {maxMatches: 1, time: 10000});
+        const filter = (m) => m.author.id == message.author.id;
+        const collector = message.channel.createMessageCollector(filter, {maxMatches: 1, time: TIME_LIMIT_MS});
 
 
 
         message.channel.send(`Guess a number between ${MIN_VAL_USER} and ${MAX_VAL_USER}. You win if your number is higher.`);
 
-        collector.on("collect", m => {
+        collector.on("collect", (m) => {
 
             //Non-numeric characters in args
             if(!m.content.match(/^[0-9]+$/)){

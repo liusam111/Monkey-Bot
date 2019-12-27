@@ -8,7 +8,7 @@ const {prefix, token, sqlpass} = require("./config.json");
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 client.active = new Discord.Collection();
-client.messageRepeat = [];
+client.messageRepeat = new Discord.Collection();
 client.login(token);
 
 //Define constants

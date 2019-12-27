@@ -7,22 +7,28 @@ module.exports = {
     execute(message, args, client){
         let noSpecialChars = message.content.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 
-        let newPair = [message.author.id, noSpecialChars];
-        
-        client.messageRepeat.push(newPair);
-        if(client.messageRepeat.length > MIN_REPEATS){
-            client.messageRepeat.shift();
+
+        if(!client.messageRepeat.get(message.guild.id)){
+            client.messageRepeat.set(message.guild.id, []);
         }
-        
+
+        let currGuildMessages = client.messageRepeat.get(message.guild.id);
+        let newPair = [message.author.id, noSpecialChars];
+
+
+        currGuildMessages.push(newPair);
+        if(currGuildMessages.length > MIN_REPEATS){
+            currGuildMessages.shift();
+        }
 
         //Check that the last 3 messages are the same message by different users
-        if(client.messageRepeat.length == MIN_REPEATS){
-            let user1 = client.messageRepeat[0][0];
-            let user2 = client.messageRepeat[1][0];
-            let user3 = client.messageRepeat[2][0];
-            let msg1 = client.messageRepeat[0][1];
-            let msg2 = client.messageRepeat[1][1];
-            let msg3 = client.messageRepeat[2][1];
+        if(currGuildMessages.length == MIN_REPEATS){
+            let user1 = currGuildMessages[0][0];
+            let user2 = currGuildMessages[1][0];
+            let user3 = currGuildMessages[2][0];
+            let msg1 = currGuildMessages[0][1];
+            let msg2 = currGuildMessages[1][1];
+            let msg3 = currGuildMessages[2][1];
 
             let diffUsers = (user1 != user2) && (user1 != user3) && (user2 != user3);
             let sameMsg = (msg1 == msg2) && (msg1 == msg3) && (msg2 == msg3);

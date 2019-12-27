@@ -12,8 +12,7 @@ module.exports = {
 
         request(url, (err, response, html) =>{
             if(!err && response.statusCode == VALID_STATUS){
-                database.query(`SELECT * FROM mainchannel 
-                                WHERE guildid = ${guildId} `, (err, rows) => {
+                database.query(`SELECT * FROM mainchannel WHERE guildid = '${guildId}' `, (err, rows) => {
                     if(err) throw err;
 
                     if(!rows.length || !rows[0].enable) return;

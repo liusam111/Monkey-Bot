@@ -5,9 +5,11 @@ module.exports = {
     description: "Shows user's level and xp",
     execute(message, args, client, database){
         const Discord = require("discord.js");
-        var currUser = getFirstMention(args, client, "user") || message.author;
-        database.query(`SELECT * FROM userinfo 
-                        WHERE id = '${currUser.id}'`, (err, rows) => {
+        const helper = require("./helper_general.js");
+
+        var currUser = helper.getFirstMention(args, client, "user") || message.author;
+        
+        database.query(`SELECT * FROM userinfo WHERE id = '${currUser.id}'`, (err, rows) => {
             if(err) console.error(err);
 
             let currExp = !rows.length ?  0 : rows[0].xp;

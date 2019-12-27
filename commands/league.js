@@ -2,18 +2,17 @@ module.exports = {
     name: "league",
     description: "Shows Ranked Solo/Duo information of specified League username",
     execute(message, args, client, database){
+        const helper = require("./helper_general.js");
         let username;
 
         //No arguments given, search for message author's League profile
         if(!args.length){
-            database.query(`SELECT * FROM userinfo 
-                            WHERE id = '${message.author.id}'`, (err, rows) => {
+            database.query(`SELECT * FROM userinfo WHERE id = '${message.author.id}'`, (err, rows) => {
                 if(err) throw err;
 
                 //First time chatting in a server with Monkey Bot
                 if(!rows.length){
-                    database.query(`INSERT INTO userinfo (id) 
-                                    VALUES('${message.author.id}')`);
+                    database.query(`INSERT INTO userinfo (id) VALUES('${message.author.id}')`);
                     username = "";
                 } else {
                     username = rows[0].league;
@@ -37,7 +36,7 @@ module.exports = {
                 //Unlink username from Discord id
                 } else if(args[0] == "-unlink"){
                     args.shift();
-                    console.log("unlonk");
+                    leagueUnlink(message, args, client, database);
 
                 //Invalid flag
                 } else {
@@ -46,13 +45,10 @@ module.exports = {
 
             //No flags
             } else {
-                let username;
-                
-                let mentionedUser = getFirstMention(args, client, "user");
+                let mentionedUser = helper.getFirstMention(args, client, "user");
 
                 if(mentionedUser){
-                    database.query(`SELECT * FROM userinfo 
-                                    WHERE id = '${mentionedUser.id}'`, (err, rows) => {
+                    database.query(`SELECT * FROM userinfo WHERE id = '${mentionedUser.id}'`, (err, rows) => {
                         if(err) throw err;
 
                         username = !rows.length ? "" : rows[0].league;

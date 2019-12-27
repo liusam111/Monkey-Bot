@@ -5,7 +5,9 @@ module.exports = {
     description: "Shows mentioned user's profile information, or the author's profile if no one is mentioned",
     guildOnly: true,
     execute(message, args, client){
-        let currUser = getFirstMention(args, client, "user") || message.author;
+        const helper = require("./helper_general.js");
+
+        let currUser = helper.getFirstMention(args, client, "user") || message.author;
 
         const Discord = require("discord.js");
         const timeSinceCreation = (Date.now() - currUser.createdTimestamp) / (DAYS_TO_SECS);

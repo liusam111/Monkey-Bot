@@ -112,18 +112,16 @@ leagueLink = function(message, args, client, database){
                 }
 
                 //Link Discord ID with username in MySQL database
-                database.query(`SELECT * FROM userinfo 
-                                WHERE id = '${message.author.id}'`, (err, rows) => {
+                database.query(`SELECT * FROM userinfo WHERE id = '${message.author.id}'`, (err, rows) => {
                     if(err) throw err;
 
                     let sql;
 
                     if(!rows.length){
-                        sql = `INSERT INTO userinfo (id, league) 
-                               VALUES('${message.author.id}', '${username}')`;
+                        sql = `INSERT INTO userinfo (id, league) VALUES('${message.author.id}', '${username}')`;
+
                     } else {
-                        sql = `UPDATE userinfo SET league = '${username} '
-                               WHERE id = '${message.author.id}'`;
+                        sql = `UPDATE userinfo SET league = '${username}' WHERE id = '${message.author.id}'`;
                     }
 
                     database.query(sql);
@@ -135,4 +133,62 @@ leagueLink = function(message, args, client, database){
         });
     }
     
+}
+
+leagueUnlink = function(message, args, client, database){
+    const MAX_ERRORS = 3;
+    const TIME_LIMIT_MS = 10000;
+    const filter = (m) => m.author.id == message.author.id;
+    const collector = message.channel.createMessageCollector(filter, {maxMatches: MAX_ERRORS, time: TIME_LIMIT_MS});
+
+    message.channel.send("Are you sure you want to unlink your League username? Type \`Y\` or \`N\`.");
+
+    client.active.set(message.author.id);
+    collector.on("collect", (m) => {
+        let messageLowercase = m.content.toLowerCase();
+
+        if(messageLowercase == "y"){
+            
+            database.query(`SELECT * FROM userinfo WHERE id = '${message.author.id}'`, (err, rows) => {
+
+                if (err) throw err;
+
+                let sql;
+                if(!rows.length){
+                    sql = `INSERT INTO userinfo (id , league) VALUES ('${message.author.id}','')`;
+                } else {
+                    sql = `UPDATE userinfo SET league = '' WHERE id = '${message.author.id}'`;
+                }
+
+                database.query(sql);
+
+            });
+            collector.stop("success");
+
+        } else if(messageLowercase =="n"){
+            collector.stop("cancelled");
+
+        } else if(collector.collected.size < MAX_ERRORS) {
+            message.channel.send("That's not an option. Type \`Y\` or \`N\`.");
+        }
+    });
+
+    collector.on("end", (collected, reason) => {
+        if(reason == "time"){
+            message.channel.send("I don't have all day. Try again when you're ready to decide.");
+
+        } else if(reason == "matchesLimit"){
+            message.channel.send("I think I've given you enough chances. Unlink cancelled.");
+
+        } else if(reason == "success"){
+            message.channel.send("Your League username has been unlinked to your Discord!");
+
+        } else if(reason == "cancelled"){
+            message.channel.send("Unlink cancelled.");
+        }
+
+        if(client.active.has(message.author.id)){
+            return client.active.delete(message.author.id);
+        }
+    });
 }
