@@ -26,7 +26,7 @@ module.exports = {
         collector.on("collect", (m) => {
 
             //Non-numeric characters in args
-            if(!m.content.match(/^[0-9]+$/)){
+            if(isNaN(m.content)){
                 collector.stop("error_num");
                 return;
             }

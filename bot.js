@@ -96,10 +96,10 @@ client.on("message", message => {
     
     //Slice off prefix, split message by spacebars
     const original = message.content.slice(prefix.length).split(" ");
-    const args = message.content.slice(prefix.length).split(/ +/);
+    const args = message.content.toLowerCase().slice(prefix.length).split(/ +/);
 
     //Take first element (command) off
-    const commandName = args.shift().toLowerCase(); 
+    const commandName = args.shift();
     original.shift();
 
 

@@ -3,7 +3,15 @@ module.exports = {
     description: "Shows Ranked Solo/Duo information of specified League username",
     execute(message, args, client, database){
         const helper = require("./helper_general.js");
+
+        const flagEnum = {
+            LINK: "-link",
+            UNLINK: "-unlink",
+            REGION: "-region="
+        }
+
         let username;
+        let region = "na"; //Let NA be default region
 
         //No arguments given, search for message author's League profile
         if(!args.length){
@@ -16,27 +24,44 @@ module.exports = {
                     username = "";
                 } else {
                     username = rows[0].league;
+                    region = rows[0].region;
                 }
-                console.log(username)
-                leagueSearch(message, username, message.author, true);
+                leagueSearch(message, username, region, message.author);
             });
 
             
 
         } else {
 
-            //Args contains flags
+            const validRegions = new Set(["na", "kr", "jp", "euw", "eune", "oce", "br", "las", "lan", "ru", "tr"]);
+
+            //Check for region flag
+            if(args[0].startsWith(flagEnum.REGION)){
+                region = args[0].replace(flagEnum.REGION, "");
+
+
+                if(!validRegions.has(region)){
+                    return message.channel.send("Invalid Region");
+                }
+
+                args.shift();
+            }
+
+            if(!args.length){
+                return message.channel.send("Gimme a name");
+            }
+
+            //Check for link/unlink flag
             if(args[0].startsWith("-")){
 
-                //Link new username to Discord id
-                if(args[0] == "-link"){
+                if(args[0] == flagEnum.LINK){
                     args.shift();
-                    leagueLink(message, args, client, database);
+                    leagueLink(message, args, database, region);
 
-                //Unlink username from Discord id
-                } else if(args[0] == "-unlink"){
+
+                } else if(args[0] == flagEnum.UNLINK){
                     args.shift();
-                    leagueUnlink(message, args, client, database);
+                    leagueUnlink(message, client, database);
 
                 //Invalid flag
                 } else {
@@ -52,13 +77,14 @@ module.exports = {
                         if(err) throw err;
 
                         username = !rows.length ? "" : rows[0].league;
-                        leagueSearch(message, username, mentionedUser, false);
+                        region = !rows.length ? "" : rows[0].region;
+                        leagueSearch(message, username, region, mentionedUser);
                     });
 
 
                 } else {
                     username = args.join(" ");
-                    leagueSearch(message, username, mentionedUser, false);
+                    leagueSearch(message, username, region, mentionedUser);
                 }
             }
         }
