@@ -2,7 +2,8 @@ module.exports = {
     name: "league",
     description: "Shows Ranked Solo/Duo information of specified League username",
     execute(message, args, client, database){
-        const helper = require("./helper_general.js");
+        const helper = require("./helper/helper_general.js");
+        const league = require("./helper/helper_league.js");
 
         const flagEnum = {
             LINK: "-link",

@@ -13,7 +13,7 @@ leagueSearch = function(message, searchName, region, mentionedUser){
         }
     }
 
-    //If username is "", then region should always be "", but just in case
+    //If searchName is "", then region should always be "", but just in case
     region = (region == "") ? "na" : region;
 
     //KR region URL uses the www.opgg while all other regions use REGIONCODE.opgg
@@ -62,7 +62,7 @@ leagueSearch = function(message, searchName, region, mentionedUser){
                 const wins = $("div.TierInfo > span.WinLose > span.wins").text().replace("W","");
                 const losses = $("div.TierInfo > span.WinLose > span.losses").text().replace("L","");
                 const winRatio = $("div.TierInfo > span.WinLose > span.winratio").text().replace("Win Ratio ","");
-                const ladderRank = ladderHTML.text().replace(/(Ladder)?(Rank)?/g, "");
+                const ladderRank = ladderHTML.text().replace(/(Ladder|Rank)/g, "");
                 const lp = $("div.TierInfo > span.LeaguePoints").text();
                 const lpText = rank + ", " + lp.replace("\n", "");
                 embed = new Discord.RichEmbed()
@@ -91,25 +91,13 @@ leagueLink = function(message, args, database, region){
     const cheerio = require("cheerio");
     const Discord = require("discord.js");
 
-    let searchName;
-
     //Prompt user to input username if they don't provide it
     if(!args.length){
         message.channel.send("Gimme a name");
     } else {
-        searchName = args.join(" ");
-        linkHandler(searchName, region);
-    }
+        let searchName = args.join(" ");
 
-
-
-    /*
-     * Handles username verification to make sure it exists
-     * Also handles the actual linking of Discord ID and username in MySQL
-     */
-    function linkHandler(searchName, region){
-
-        //If username is "", then region should always be "", but just in case
+        //If searchName is "", then region should always be "", but just in case
         region = (region == "") ? "na" : region;
 
         //KR region URL uses the www.opgg while all other regions use REGIONCODE.opgg

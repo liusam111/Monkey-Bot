@@ -17,6 +17,19 @@ module.exports = {
 
                     if(!rows.length || !rows[0].enable) return;
 
+                    let currGuild = client.guilds.get(guildId);
+                    if(!currGuild){ 
+                        database.query(`DELETE FROM mainchannel WHERE guildid = '${guildId}'`);
+                        return;
+                    }
+
+                    let mainChannelId = rows[0].mainchannelid;
+                    let mainChannel = currGuild.channels.get(mainChannelId);
+                    if(!mainChannel){ 
+                        database.query(`DELETE FROM mainchannel WHERE guildid = '${guildId}'`);
+                        return;
+                    }
+
                     const $ = cheerio.load(html);
 
                     const fact = $("div#f > div#z").first().contents().filter(function() {
@@ -30,9 +43,6 @@ module.exports = {
                         .setDescription(fact);
 
 
-                    let mainChannelId = rows[0].mainchannelid;
-                    let currGuild = client.guilds.get(guildId);
-                    let mainChannel = currGuild.channels.get(mainChannelId);
                     mainChannel.send(embed);
                     
                 });

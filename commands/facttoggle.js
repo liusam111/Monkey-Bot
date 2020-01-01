@@ -3,7 +3,7 @@ module.exports = {
     description: "Enables/Disables automatics facts in the server",
     guildOnly: true,
     execute(message, args, client, database){
-        const helper = require("./helper_general.js");
+        const helper = require("./helper/helper_general.js");
 
         //Check permissions
         if(!helper.isModerator(message.member)){

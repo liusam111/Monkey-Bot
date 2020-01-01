@@ -5,7 +5,7 @@ module.exports = {
     description: "Shows mentioned user's profile information, or the author's profile if no one is mentioned",
     guildOnly: true,
     execute(message, args, client){
-        const helper = require("./helper_general.js");
+        const helper = require("./helper/helper_general.js");
 
         let currUser = helper.getFirstMention(args, client, "user") || message.author;
 

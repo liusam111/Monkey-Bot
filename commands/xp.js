@@ -5,7 +5,7 @@ module.exports = {
     description: "Shows user's level and xp",
     execute(message, args, client, database){
         const Discord = require("discord.js");
-        const helper = require("./helper_general.js");
+        const helper = require("./helper/helper_general.js");
 
         var currUser = helper.getFirstMention(args, client, "user") || message.author;
         

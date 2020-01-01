@@ -3,7 +3,7 @@ module.exports = {
     description: "Fake kick message",
     guildOnly: true,
     execute(message, args, client){
-        const helper = require("./helper_general.js");
+        const helper = require("./helper/helper_general.js");
 
         if(!message.mentions.users.size){
             message.reply("Give me someone to kick.");
