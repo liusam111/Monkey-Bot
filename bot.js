@@ -85,7 +85,7 @@ client.on("message", message => {
 
 
 
-    //Only run commands with prefix, but check repeat for commands without prefix
+    //Only run commands with prefix, but check repeat for messages without prefix
     if(!message.content.startsWith(prefix)){
         client.commands.get("repeat").execute(message, null, client);
         return;
@@ -96,9 +96,11 @@ client.on("message", message => {
     
     //Slice off prefix, split message by spacebars
     const original = message.content.slice(prefix.length).split(" ");
+
+    //When used in command execute functions, the args array values can be modified
     const args = message.content.toLowerCase().slice(prefix.length).split(/ +/);
 
-    //Take first element (command) off
+
     const commandName = args.shift();
     original.shift();
 
@@ -112,6 +114,9 @@ client.on("message", message => {
     if(!cooldowns.has(command.name)){
         cooldowns.set(command.name, new Discord.Collection());
     }
+
+
+    
 
     const now = Date.now();
     const timestamps = cooldowns.get(command.name);
@@ -130,6 +135,9 @@ client.on("message", message => {
         //Automatically delete user entry from timestamps after cooldown
         setTimeout(() => timestamps.delete(message.author.id), cooldownTime);
     }
+
+
+
 
 
     //Run commands

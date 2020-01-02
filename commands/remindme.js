@@ -14,23 +14,27 @@ module.exports = {
             return message.channel.send(formatError);
         }
 
-        const firstVal = args[0];
+        const isNum = remind.isNumber(args[0]);
         const splitByTime = args[0].split(":");
         const splitByDate = args[0].replace(/\//g, "-").split("-");
         const dayOfWeek = remind.getDayOfWeek(args[0]);
-        
+        const monthString = remind.getMonthFromString(args[0]);
+
         //Time Offset
-        if(!isNaN(firstVal)){
+        if(isNum){
             remind.parseByOffset(message, args, client, database);
         //Date and Time
         } else if(minDateArgs <= splitByDate.length && splitByDate.length <= maxDateArgs){
-            let a = 1;
+            remind.parseByDateTime(message, args, client, database);
         //Only Time
         } else if(splitByTime != numTimeArgs){
-            let a = 1;
+            remind.parseByTime(message, args, client, database);
         //Day of Week
         } else if(dayOfWeek != -1){
-            let a = 1;
+            remind.parseByDayOfWeek(message, args, client, database);
+        //Month in String Format
+        } else if(monthString != -1){
+            remind.parseByMonthString(message, args, client, database);
         } else {
             message.channel.send(formatError);
         }
