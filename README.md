@@ -16,6 +16,8 @@ cheerio <br />
 discord.js <br />
 request <br />
 mysql <br />
+moment <br />
+moment-timezone <br />
 <br />
 MySQL Database Info: <br />
 Database Name: monkeybot <br />

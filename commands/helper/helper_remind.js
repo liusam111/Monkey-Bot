@@ -34,8 +34,8 @@ module.exports = {
             let value = args[currArg];
             let unitOfTime = args[currArg+1];
             let unitRegex = keys[i];
-            console.log(value)
-            console.log(unitOfTime)
+            
+            
             if(isNaN(value) || value < 0){
                 return message.channel.send(errorMessage);
             }
@@ -43,7 +43,6 @@ module.exports = {
             if(unitOfTime.match(unitRegex)){
                 let unitConvert = values[i];
                 totalOffset += value * unitConvert;
-                console.log(values)
                 currArg += 2;
             }
             
