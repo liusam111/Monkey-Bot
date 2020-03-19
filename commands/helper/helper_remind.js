@@ -6,54 +6,50 @@ const minDateArgs = 2;
 const maxDateArgs = 3;
 const numTimeArgs = 2;
 
+const moment = require("moment");
+const tz = require("moment-timezone");
+
 module.exports = {
 
     /* Get date string based on time offset arguments */
     parseByOffset(message, args, client, database){
         const errorMessage = "Invalid Format and/or Offset";
-        const Discord = require("discord.js");
         
-
         if(args.length % 2 != 0){
             return message.channel.send(errorMessage);
         }
 
-        const weeks = /^w(ee)?ks?$/;
-        const days = /^days?$/;
-        const hours = /^h(ou)?rs?$/;
-        const mins = /^min(ute)?s?$/;
+        const weeks = /^w((ee)?ks?)?$/;
+        const days = /^d(ays?)?$/;
+        const hours = /^h((ou)?rs?)?$/;
+        const mins = /^m(in(ute)?s?)?$/;
 
-        const valueMap = new Discord.Collection;
         const keys = [weeks, days, hours, mins];
-        valueMap.set(weeks, WK_TO_MS);
-        valueMap.set(days, DAY_TO_MS);
-        valueMap.set(hours, HR_TO_MS);
-        valueMap.set(mins, MIN_TO_MS);
+        const values = [WK_TO_MS, DAY_TO_MS, HR_TO_MS, MIN_TO_MS];
 
         let totalOffset = 0;
 
-        for(let i = 0; i < keys.length && args.length > 0; i++){
-            let value = args[0];
-            let unitOfTime = args[1];
-
+        let currArg = 0;
+        for(let i = 0; i < keys.length && currArg < args.length; i++){
+            let value = args[currArg];
+            let unitOfTime = args[currArg+1];
             let unitRegex = keys[i];
-
-            if(isNaN(value)){
-                return message.channel.send(errorMessage);
-            }
-            if(value < 0){
+            console.log(value)
+            console.log(unitOfTime)
+            if(isNaN(value) || value < 0){
                 return message.channel.send(errorMessage);
             }
 
             if(unitOfTime.match(unitRegex)){
-                let unitConvert = valueMap.get(unitRegex);
+                let unitConvert = values[i];
                 totalOffset += value * unitConvert;
-                args.shift();
-                args.shift();
+                console.log(values)
+                currArg += 2;
             }
+            
         }
 
-        if(args.length > 0 || totalOffset < 1){
+        if(currArg < args.length || totalOffset < 1){
             return message.channel.send(errorMessage);
         }
         
@@ -82,8 +78,8 @@ module.exports = {
         const dateString = `${currMonth}-${currDay}-${currYear} ${formattedTime}`
         
         let alarmTime = new Date(dateString);
-        console.log(dateString)
-        if(alarmTime.toString() == "Invalid Date"){
+        
+        if(alarmTime.toString().toLowerCase() == "invalid date"){
             return message.channel.send(errorMessage);
         }
 
@@ -167,7 +163,7 @@ module.exports = {
                 } else {
                     return errorString;
                 }
-                
+
             }
             
             return `${setHrs}:${setMins} ${ampmArg}`;

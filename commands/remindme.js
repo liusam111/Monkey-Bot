@@ -19,7 +19,7 @@ module.exports = {
         const splitByDate = args[0].replace(/\//g, "-").split("-");
         const dayOfWeek = remind.getDayOfWeek(args[0]);
         const monthString = remind.getMonthFromString(args[0]);
-
+        
         //Time Offset
         if(isNum){
             remind.parseByOffset(message, args, client, database);
@@ -27,7 +27,7 @@ module.exports = {
         } else if(minDateArgs <= splitByDate.length && splitByDate.length <= maxDateArgs){
             remind.parseByDateTime(message, args, client, database);
         //Only Time
-        } else if(splitByTime != numTimeArgs){
+        } else if(splitByTime.length == numTimeArgs){
             remind.parseByTime(message, args, client, database);
         //Day of Week
         } else if(dayOfWeek != -1){
