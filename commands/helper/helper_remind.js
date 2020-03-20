@@ -9,6 +9,35 @@ const numTimeArgs = 2;
 const moment = require("moment");
 const tz = require("moment-timezone");
 
+const validFormats = [
+    "M-D-YYYY h:mm a",
+    "M-D-YYYY h:mma",
+    "M-D-YYYY H:mm",
+    "M/D/YYYY h:mm a",
+    "M/D/YYYY h:mma",
+    "M/D/YYYY H:mm",
+    "M-D-YY h:mm a",
+    "M-D-YY h:mma",
+    "M-D-YY H:mm",
+    "M/D/YY h:mm a",
+    "M/D/YY h:mma",
+    "M/D/YY H:mm",
+    "MMM D h:mm a",
+    "MMM D h:mma",
+    "MMMM D h:mm a",
+    "MMMM D h:mma",
+    "MMM D YYYY h:mm a",
+    "MMM D YYYY h:mma",
+    "MMMM D YYYY h:mm a",
+    "MMMM D YYYY h:mma",
+    "MMM D, YYYY h:mm a",
+    "MMM D, YYYY h:mma",
+    "MMMM D, YYYY h:mm a",
+    "MMMM D, YYYY h:mma"
+];
+
+const DEFAULT_TZ = "America/Los_Angeles";
+
 module.exports = {
 
     /* Get date string based on time offset arguments */
@@ -36,7 +65,7 @@ module.exports = {
             let unitRegex = keys[i];
             
             
-            if(isNaN(value) || value < 0){
+            if(!this.isNumber(value) || value < 0){
                 return message.channel.send(errorMessage);
             }
 
@@ -64,30 +93,32 @@ module.exports = {
     },
 
 
-    /* Get date string based on only time arguments */
+    /* Get date string based on only time arguments 
+     * Handles 12 hour clock HH:MM{AM/PM}, HH:MM {AM/PM} (with space between time and AM/PM)
+     * and 24 hour clock HH:MM formats through Moment/Moment-Timezone parsing
+     */
     parseByTime(message, args, client, database){
-        const errorMessage = "Invalid Format and/or Time";
+        const errorMessage = "Invalid Format and/or Time";     
 
-        const formattedTime = this.getTimeStringFromArgs(args);        
-
-        const now = new Date();
-        const currMonth = now.getMonth() + 1; //Month is 0 indexed
-        const currDay = now.getDate();
-        const currYear = now.getFullYear();
-        const dateString = `${currMonth}-${currDay}-${currYear} ${formattedTime}`
+        const now = moment.tz(DEFAULT_TZ);
+        const currMonth = now.month() + 1; //Month is 0 indexed
+        const currDay = now.date();
+        const currYear = now.year();
+        const dateString = `${currMonth}-${currDay}-${currYear} ${args.toString().replace(/,/g, " ")}`;
         
-        let alarmTime = new Date(dateString);
+        let remindMoment = moment.tz(dateString, validFormats, true, DEFAULT_TZ);
         
-        if(alarmTime.toString().toLowerCase() == "invalid date"){
+        //Invalid format
+        if(isNaN(remindMoment.unix())){
             return message.channel.send(errorMessage);
         }
 
         //Set for next day if time already passed
-        if(alarmTime.valueOf() <= now.valueOf()){
-            alarmTime = new Date(alarmTime.valueOf() + DAY_TO_MS);
+        if(remindMoment.valueOf() <= now.valueOf()){
+            remindMoment = moment.tz(remindMoment.valueOf() + DAY_TO_MS, DEFAULT_TZ);
         }
 
-        message.channel.send("WIP: Alarm would've been set at: " + alarmTime.toString());
+        message.channel.send("WIP: Alarm would've been set at: " + remindMoment.toString());
     },
 
 
@@ -99,74 +130,6 @@ module.exports = {
     /* Get date string based on month in string format */
     parseByMonthString(message, args, client, database){
 
-    },
-
-
-    /* 
-     * Parses the time from args for errors
-     * Modifies the parameter "args" in the process
-     * Assumes the first element in "args" is a time string, otherwise it's a format error
-     * Returns "INVALID" if there are any format errors
-     * Returns a string in the format HH:MM {AM/PM} if no format errors
-     *  */
-    getTimeStringFromArgs(args){
-        const errorString = "INVALID";
-        const ampmEnum = {
-            AM : "am",
-            PM: "pm"
-        }
-
-        if(!args.length){
-            const now = new Date();
-            const currHr = now.getHours();
-            const currMin = now.getMinutes();
-
-            return `${currHr}:${currMin}`;
-
-        } else {
-            const splitTime = args[0].split(":");
-
-            if(splitTime.length != numTimeArgs){
-                return errorString;
-            }
-
-
-            const setHrs = splitTime[0];
-            const setMins = splitTime[1].replace(/((a.?m.?)|(p.?m.?))?$/, "");
-            args.shift();
-
-            if(!this.isNumber(setHrs) || !this.isNumber(setMins)){
-                return errorString;
-            }
-
-            let ampmArg = "";
-    
-            //am or pm is in its own separate argument index
-            if(args.length){
-                ampmArg = args[0].replace("a.m.", ampmEnum.AM).replace("p.m.", ampmEnum.PM);
-                args.shift();
-
-                if(ampmArg != ampmEnum.AM && ampmArg != ampmEnum.PM) return errorString;
-                if(args.length) return errorString;
-            
-
-            //am or pm is joined with the time or is not given
-            } else {
-
-                if(splitTime[1].match(/[0-9]+((a.m.)|(am))$/)){ //AM
-                    ampmArg = ampmEnum.AM;
-                } else if(splitTime[1].match(/[0-9]+((p.m.)|(pm))$/)){ //PM
-                    ampmArg = ampmEnum.PM;
-                } else if(splitTime[1].match(/[0-9]+$/)){ //Not Given
-                    ampmArg = "";
-                } else {
-                    return errorString;
-                }
-
-            }
-            
-            return `${setHrs}:${setMins} ${ampmArg}`;
-        }
     },
 
 
