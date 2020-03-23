@@ -33,7 +33,13 @@ const validFormats = [
     "MMM D, YYYY h:mm a",
     "MMM D, YYYY h:mma",
     "MMMM D, YYYY h:mm a",
-    "MMMM D, YYYY h:mma"
+    "MMMM D, YYYY h:mma",
+    "MMM D H:mm",
+    "MMMM D H:mm",
+    "MMM D YYYY H:mm",
+    "MMMM D YYYY H:mm",
+    "MMM D, YYYY H:mm",
+    "MMMM D, YYYY H:mm"
 ];
 
 const DEFAULT_TZ = "America/Los_Angeles";
@@ -81,15 +87,48 @@ module.exports = {
             return message.channel.send(errorMessage);
         }
         
-        let alarmTime = new Date(Date.now() + totalOffset);
-        message.channel.send("WIP: Alarm would've been set at: " + alarmTime.toString());
+        let remindMoment = new Date(Date.now() + totalOffset);
+        message.channel.send("WIP: Alarm would've been set at: " + remindMoment.toString());
 
     },
 
 
-    /* Get date string based on date and optional time arguments */
+    /* Get date string based on date and optional time arguments 
+     * If no time given, defaults to current time
+     * If no year given, defaults to current year if time hasn't already passed,
+     * Otherwise, defaults to next year
+     */
     parseByDateTime(message, args, client, database){
+        const errorMessage = "Invalid Format and/or Time";
 
+        const now = moment.tz(DEFAULT_TZ);
+        const dateArg = args.shift();
+
+        let timeString;
+        //Date and time
+        if(args.length){
+            timeString = `${args.toString().replace(/,/g, " ")}`;
+
+        //Only date
+        } else {
+            timeString = `${now.hour()}:${now.minute()}`;
+        }
+
+
+        const dateValues = dateArg.replace(/\//g, "-").split("-");
+        const monthInput = dateValues[0];
+        const dateInput = dateValues[1];
+
+        let dateString;
+        //Length is either 2 (no year) or 3 (specified year), enforced in main remindme function
+        if(dateValues.length == 2){
+            dateString = `${monthInput}-${dateInput}-${now.year()}`;
+        } else {
+            dateString = dateArg;
+        }
+
+
+        
     },
 
 
@@ -104,12 +143,12 @@ module.exports = {
         const currMonth = now.month() + 1; //Month is 0 indexed
         const currDay = now.date();
         const currYear = now.year();
-        const dateString = `${currMonth}-${currDay}-${currYear} ${args.toString().replace(/,/g, " ")}`;
+        const timeString = `${currMonth}-${currDay}-${currYear} ${args.toString().replace(/,/g, " ")}`;
         
-        let remindMoment = moment.tz(dateString, validFormats, true, DEFAULT_TZ);
+        let remindMoment = moment.tz(timeString, validFormats, true, DEFAULT_TZ);
         
         //Invalid format
-        if(isNaN(remindMoment.unix())){
+        if(isNaN(remindMoment.valueOf())){
             return message.channel.send(errorMessage);
         }
 
@@ -161,52 +200,6 @@ module.exports = {
         return -1;
     },
 
-
-
-
-    /*
-     * Returns the 0 indexed month based on the month string
-     */
-    getMonthFromString(month){
-        if(month.match(/^jan(uary)?$/i)){
-            return 0;
-        }
-        if(month.match(/^feb(ruary)?$/i)){
-            return 1;
-        }
-        if(month.match(/^mar(ch)?$/i)){
-            return 2;
-        }
-        if(month.match(/^apr(il)?$/i)){
-            return 3;
-        }
-        if(month.match(/^may$/i)){
-            return 4;
-        }
-        if(month.match(/^jun(e)?$/i)){
-            return 5;
-        }
-        if(month.match(/^jul(y)?$/i)){
-            return 6;
-        }
-        if(month.match(/^aug(ust)?$/i)){
-            return 7;
-        }
-        if(month.match(/^sep(tember|t)?$/i)){
-            return 8;
-        }
-        if(month.match(/^oct(ober)?$/i)){
-            return 9;
-        }
-        if(month.match(/^nov(ember)?$/i)){
-            return 10;
-        }
-        if(month.match(/^dec(ember)?$/i)){
-            return 11;
-        }
-       
-        return -1;
-    },
 
     /* 
      * Checks whether the input is a number or not
