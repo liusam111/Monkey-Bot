@@ -45,13 +45,14 @@ const validFormats = [
 const DEFAULT_TZ = "America/Los_Angeles";
 
 module.exports = {
+    error: "ERROR",
+    past: "PAST",
+
 
     /* Get date string based on time offset arguments */
     parseByOffset(message, args, client, database){
-        const errorMessage = "Invalid Format and/or Offset";
-        
         if(args.length % 2 != 0){
-            return message.channel.send(errorMessage);
+            return this.error;
         }
 
         const weeks = /^w((ee)?ks?)?$/;
@@ -72,7 +73,7 @@ module.exports = {
             
             
             if(!this.isNumber(value) || value < 0){
-                return message.channel.send(errorMessage);
+                return this.error;
             }
 
             if(unitOfTime.match(unitRegex)){
@@ -84,11 +85,12 @@ module.exports = {
         }
 
         if(currArg < args.length || totalOffset < 1){
-            return message.channel.send(errorMessage);
+            return this.error;
         }
-        
-        let remindMoment = new Date(Date.now() + totalOffset);
-        message.channel.send("WIP: Alarm would've been set at: " + remindMoment.toString());
+
+        const now = moment.tz(DEFAULT_TZ);
+        const remindMoment = moment.tz(now.valueOf() + totalOffset, DEFAULT_TZ);
+        return remindMoment.valueOf();
 
     },
 
@@ -99,8 +101,6 @@ module.exports = {
      * Otherwise, defaults to next year
      */
     parseByDateTime(message, args, client, database){
-        const errorMessage = "Invalid Format and/or Time";
-
         const now = moment.tz(DEFAULT_TZ);
         const dateArg = args.shift();
 
@@ -119,15 +119,36 @@ module.exports = {
         const monthInput = dateValues[0];
         const dateInput = dateValues[1];
 
-        let dateString;
+
+        let remindMoment;
         //Length is either 2 (no year) or 3 (specified year), enforced in main remindme function
         if(dateValues.length == 2){
-            dateString = `${monthInput}-${dateInput}-${now.year()}`;
+            let dateString = `${monthInput}-${dateInput}-${now.year()}`;
+            remindMoment = moment.tz(`${dateString} ${timeString}`, validFormats, true, DEFAULT_TZ);
+
+            if(isNaN(remindMoment.valueOf())){
+                return this.error;
+            }
+
+            if(remindMoment.valueOf() <= now.valueOf()){
+                remindMoment.year(now.year() + 1);
+            }
+
+
         } else {
-            dateString = dateArg;
+            let dateString = dateArg;
+            remindMoment = moment.tz(`${dateString} ${timeString}`, validFormats, true, DEFAULT_TZ);
+
+            if(isNaN(remindMoment.valueOf())){
+                return this.error;
+            }
+
+            if(remindMoment.valueOf() <= now.valueOf()){
+                return this.past;
+            }
         }
 
-
+        return remindMoment.valueOf();
         
     },
 
@@ -136,28 +157,26 @@ module.exports = {
      * Handles 12 hour clock HH:MM{AM/PM}, HH:MM {AM/PM} (with space between time and AM/PM)
      * and 24 hour clock HH:MM formats through Moment/Moment-Timezone parsing
      */
-    parseByTime(message, args, client, database){
-        const errorMessage = "Invalid Format and/or Time";     
-
+    parseByTime(message, args, client, database){     
         const now = moment.tz(DEFAULT_TZ);
         const currMonth = now.month() + 1; //Month is 0 indexed
         const currDay = now.date();
         const currYear = now.year();
         const timeString = `${currMonth}-${currDay}-${currYear} ${args.toString().replace(/,/g, " ")}`;
         
-        let remindMoment = moment.tz(timeString, validFormats, true, DEFAULT_TZ);
+        const remindMoment = moment.tz(timeString, validFormats, true, DEFAULT_TZ);
         
         //Invalid format
         if(isNaN(remindMoment.valueOf())){
-            return message.channel.send(errorMessage);
+            return this.error;
         }
 
         //Set for next day if time already passed
         if(remindMoment.valueOf() <= now.valueOf()){
-            remindMoment = moment.tz(remindMoment.valueOf() + DAY_TO_MS, DEFAULT_TZ);
+            remindMoment.date(now.date() + 1);
         }
 
-        message.channel.send("WIP: Alarm would've been set at: " + remindMoment.toString());
+        return remindMoment.valueOf();
     },
 
 
@@ -200,6 +219,49 @@ module.exports = {
         return -1;
     },
 
+    /*
+     * Returns the 0 indexed month based on the month string
+     */
+    getMonthFromString(month){
+        if(month.match(/^jan(uary)?$/i)){
+            return 0;
+        }
+        if(month.match(/^feb(ruary)?$/i)){
+            return 1;
+        }
+        if(month.match(/^mar(ch)?$/i)){
+            return 2;
+        }
+        if(month.match(/^apr(il)?$/i)){
+            return 3;
+        }
+        if(month.match(/^may$/i)){
+            return 4;
+        }
+        if(month.match(/^jun(e)?$/i)){
+            return 5;
+        }
+        if(month.match(/^jul(y)?$/i)){
+            return 6;
+        }
+        if(month.match(/^aug(ust)?$/i)){
+            return 7;
+        }
+        if(month.match(/^sep(tember|t)?$/i)){
+            return 8;
+        }
+        if(month.match(/^oct(ober)?$/i)){
+            return 9;
+        }
+        if(month.match(/^nov(ember)?$/i)){
+            return 10;
+        }
+        if(month.match(/^dec(ember)?$/i)){
+            return 11;
+        }
+       
+        return -1;
+    },
 
     /* 
      * Checks whether the input is a number or not

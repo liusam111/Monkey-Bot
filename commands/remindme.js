@@ -1,6 +1,8 @@
 const minDateArgs = 2;
 const maxDateArgs = 3;
 const numTimeArgs = 2;
+const DEFAULT_TZ = "America/Los_Angeles";
+
 
 module.exports = {
     name: "remindme",
@@ -8,7 +10,8 @@ module.exports = {
     cooldown: 0.1,
     execute(message, args, client, database){
         const remind = require("./helper/helper_remind.js");
-        const formatError = "Invalid Format";
+        const moment = require("moment");
+        const tz = require("moment-timezone");
 
         if(!args.length){
             return message.channel.send(formatError);
@@ -20,23 +23,39 @@ module.exports = {
         const dayOfWeek = remind.getDayOfWeek(args[0]);
         const monthString = remind.getMonthFromString(args[0]);
         
+        let remindEpoch;
+
         //Time Offset
         if(isNum){
-            remind.parseByOffset(message, args, client, database);
+            remindEpoch = remind.parseByOffset(message, args, client, database);
         //Date and Time
         } else if(minDateArgs <= splitByDate.length && splitByDate.length <= maxDateArgs){
-            remind.parseByDateTime(message, args, client, database);
+            remindEpoch = remind.parseByDateTime(message, args, client, database);
         //Only Time
         } else if(splitByTime.length == numTimeArgs){
-            remind.parseByTime(message, args, client, database);
+            remindEpoch = remind.parseByTime(message, args, client, database);
         //Day of Week
         } else if(dayOfWeek != -1){
-            remind.parseByDayOfWeek(message, args, client, database);
+            remindEpoch = remind.parseByDayOfWeek(message, args, client, database);
         //Month in String Format
         } else if(monthString != -1){
-            remind.parseByMonthString(message, args, client, database);
+            remindEpoch = remind.parseByMonthString(message, args, client, database);
         } else {
-            message.channel.send(formatError);
+            return message.channel.send("Invalid/Unsupported Format");
         }
+
+        if(isNaN(remindEpoch)){
+            if(remindEpoch == remind.past){
+                return message.channel.send("Invalid Time: This time is in the past!");
+            } else {
+                return message.channel.send("Invalid Offset/Time/Format");
+            }
+        }
+
+        const remindMoment = moment.tz(remindEpoch, DEFAULT_TZ);
+
+        message.channel.send(`(WIP) ALARM AT: ${remindMoment.format("LLLL")}`);
+
+
     }
 }
