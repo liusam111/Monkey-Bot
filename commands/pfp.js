@@ -1,14 +1,15 @@
 module.exports = {
-    name: "pfp",
-    description: "Shows mentioned user's profile picture (max 3), or the author's profile picture if no one is mentioned",
-    execute(message, args, client){
-        const helper = require("./helper/helper_general.js");
+    name: 'pfp',
+    description: 'Shows the first mentioned user\'s profile picture, or the author\'s profile picture if no one is mentioned',
+    execute(params){
+        const general = require('./modules/module-general.js');
 
-        let currUser = helper.getFirstMention(args, client, "user") || message.author;
-        message.channel.send({files: [
+        let user = general.getFirstMention(params.args, params.client, 'user') || params.message.author;
+
+        params.message.channel.send({files: [
             {
-                attachment: currUser.displayAvatarURL,
-                name: "avatar.png"
+                attachment: user.displayAvatarURL,
+                name: 'avatar.png'
                 }
         ]});
         
