@@ -60,18 +60,23 @@ client.on('message', async function(message) {
 
     //Easter egg for my personal servers
     if(message.content.match(/<@!?(651523467174346804)>/)){
-        client.commands.get('who ping me').execute(message);
+        client.commands.get('who ping me').execute({
+            'message': message
+        });
     }
 
     //Easter egg. Respond to no u
     if(message.content.toLowerCase() == 'no u'){
-        client.commands.get('no u').execute(message);
+        message.channel.send('no u');
+        return;
     }
 
     //Only run commands with prefix, but check repeat for messages without prefix
-    //TODO: Revamp this feature
     if(!message.content.startsWith(prefix)){
-        client.commands.get('repeat').execute(message, null, client);
+        client.commands.get('repeat').execute({
+            'message': message,
+            'client': client
+        });
         return;
     }
 
@@ -86,7 +91,6 @@ client.on('message', async function(message) {
     const command = client.commands.get(commandName);
 
     if(!command || command.cannotRun) return;
-
 
 
     //Set cooldowns for commands
