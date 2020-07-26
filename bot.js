@@ -1,8 +1,8 @@
 //Dependencies
-const fs = require("fs");
-const Discord = require("discord.js");
-const mysql = require("mysql");
-const {prefix, token, sqlpass} = require("./config.json");
+const fs = require('fs');
+const Discord = require('discord.js');
+const mysql = require('mysql');
+const {prefix, token, sqlpass} = require('./config.json');
 
 //Constants
 const DEFAULT_COOLDOWN = 3;
@@ -18,7 +18,7 @@ client.messageRepeat = new Discord.Collection();
 client.login(token);
 
 //Load commands from directory
-const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 const cooldowns = new Discord.Collection();
 
 for(const file of commandFiles){
@@ -30,28 +30,28 @@ for(const file of commandFiles){
 
 //MySQL Setup
 var database = mysql.createConnection({
-    host: "localhost",
-    user: "root",
+    host: 'localhost',
+    user: 'root',
     password: sqlpass,
-    database: "monkeybot"
+    database: 'monkeybot'
 });
 
 database.connect((err) => {
     if(err) console.log(err);
-    console.log("Connected to Database!");
+    console.log('Connected to Database!');
 });
 
-client.once("ready", () => {
-    console.log("Ready!");
+client.once('ready', () => {
+    console.log('Ready!');
 });
 
-client.on("message", async function(message) {
+client.on('message', async function(message) {
 
     //Don't allow bots to run commands
     if(message.author.bot) return;
 
     //Log messages
-    fs.appendFile("log.txt", (`[#${message.channel.name} (${message.channel.id})]  ${message.author.tag} (${message.author.id}): ${message}\n`), (err) => {
+    fs.appendFile('log.txt', (`[#${message.channel.name} (${message.channel.id})]  ${message.author.tag} (${message.author.id}): ${message}\n`), (err) => {
         if(err) console.error(err);
     });
 
@@ -60,18 +60,18 @@ client.on("message", async function(message) {
 
     //Easter egg for my personal servers
     if(message.content.match(/<@!?(651523467174346804)>/)){
-        client.commands.get("who ping me").execute(message);
+        client.commands.get('who ping me').execute(message);
     }
 
-    //Respond to no u
-    if(message.content.toLowerCase().includes("no u")){
-        client.commands.get("no u").execute(message);
+    //Easter egg. Respond to no u
+    if(message.content.toLowerCase() == 'no u'){
+        client.commands.get('no u').execute(message);
     }
 
     //Only run commands with prefix, but check repeat for messages without prefix
     //TODO: Revamp this feature
     if(!message.content.startsWith(prefix)){
-        client.commands.get("repeat").execute(message, null, client);
+        client.commands.get('repeat').execute(message, null, client);
         return;
     }
 
@@ -79,7 +79,7 @@ client.on("message", async function(message) {
     
 
     //Parse message for command and args
-    const original = message.content.slice(prefix.length).split(" ");
+    const original = message.content.slice(prefix.length).split(' ');
     const args = message.content.toLowerCase().slice(prefix.length).split(/ +/);
     const commandName = args.shift();
     original.shift();
@@ -132,7 +132,7 @@ client.on("message", async function(message) {
 
         //Handle server only/non-DM commands
         if(command.guildOnly && message.channel.type !== 'text'){
-            return message.reply("Get that command out of my DMs.");
+            return message.reply('Get that command out of my DMs.');
         }
 
         if(command.needsOriginal){
@@ -148,7 +148,7 @@ client.on("message", async function(message) {
 
     } catch(error) {
         console.error(error.message);
-        message.reply("Whoops! Something broke internally. Lemme just log this error...");
+        message.reply('Whoops! Something broke internally. Lemme just log this error...');
     }
     
 });
