@@ -13,7 +13,7 @@ VALID_STATUS = 200;
 //Discord client setup
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
-client.active = new Discord.Collection();
+client.activeCommand = new Discord.Collection();
 client.messageRepeat = new Discord.Collection();
 client.login(token);
 
@@ -56,7 +56,7 @@ client.on('message', async function(message) {
     });
 
     //Exit early if user is in the middle of a Collector command
-    if(client.active.has(message.author.id)) return;
+    if(client.activeCommand.has(message.author.id)) return;
 
     //Easter egg for my personal servers
     if(message.content.match(/<@!?(651523467174346804)>/)){
@@ -144,7 +144,7 @@ client.on('message', async function(message) {
 
         } else {
             if(command.limitUser){
-                client.active.set(message.author.id);
+                client.activeCommand.set(message.author.id);
             }
 
             await command.execute(parsedArgs);
