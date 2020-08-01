@@ -1,60 +1,63 @@
+const remind = require('./modules/module-remind.js');
+const moment = require('moment');
+const tz = require('moment-timezone');
+
 const minDateArgs = 2;
 const maxDateArgs = 3;
 const numTimeArgs = 2;
-const DEFAULT_TZ = "America/Los_Angeles";
+const DEFAULT_TZ = 'America/Los_Angeles';
 
 
 module.exports = {
-    name: "remindme",
-    description: "Set a reminder notification in the current channel at the specified time",
+    name: 'remindme',
+    description: 'DMs the user a remind message at the specified time',
     cooldown: 0.1,
-    execute(message, args, client, database){
-        const remind = require("./helper/helper_remind.js");
-        const moment = require("moment");
-        const tz = require("moment-timezone");
+    async execute(params){
 
-        if(!args.length){
-            return message.channel.send(formatError);
+
+        if(!params.args.length){
+            return params.message.channel.send(formatError);
         }
 
-        const isNum = remind.isNumber(args[0]);
-        const splitByTime = args[0].split(":");
-        const splitByDate = args[0].replace(/\//g, "-").split("-");
-        const dayOfWeek = remind.getDayOfWeek(args[0]);
-        const monthString = remind.getMonthFromString(args[0]);
+        let firstArg = params.args[0];
+        const isNum = remind.isNumber(firstArg);
+        const splitByTime = firstArg.split(':');
+        const splitByDate = firstArg.replace(/\//g, '-').split('-');
+        const dayOfWeek = remind.getDayOfWeek(firstArg);
+        const monthString = remind.getMonthFromString(firstArg);
         
         let remindEpoch;
 
         //Time Offset
         if(isNum){
-            remindEpoch = remind.parseByOffset(message, args, client, database);
+            remindEpoch = remind.parseByOffset(params.args);
         //Date and Time
         } else if(minDateArgs <= splitByDate.length && splitByDate.length <= maxDateArgs){
-            remindEpoch = remind.parseByDateTime(message, args, client, database);
+            remindEpoch = remind.parseByDateTime(params.args);
         //Only Time
         } else if(splitByTime.length == numTimeArgs){
-            remindEpoch = remind.parseByTime(message, args, client, database);
+            remindEpoch = remind.parseByTime(params.args);
         //Day of Week
         } else if(dayOfWeek != -1){
-            remindEpoch = remind.parseByDayOfWeek(message, args, client, database);
+            remindEpoch = remind.parseByDayOfWeek(params.args);
         //Month in String Format
         } else if(monthString != -1){
-            remindEpoch = remind.parseByMonthString(message, args, client, database);
+            remindEpoch = remind.parseByMonthString(params.args);
         } else {
-            return message.channel.send("Invalid/Unsupported Format");
+            return params.message.channel.send('Invalid/Unsupported Format');
         }
 
         if(isNaN(remindEpoch)){
             if(remindEpoch == remind.past){
-                return message.channel.send("Invalid Time: This time is in the past!");
+                return params.message.channel.send('Invalid Time: This time is in the past!');
             } else {
-                return message.channel.send("Invalid Offset/Time/Format");
+                return params.message.channel.send('Invalid Offset/Time/Format');
             }
         }
 
         const remindMoment = moment.tz(remindEpoch, DEFAULT_TZ);
 
-        message.channel.send(`(WIP) ALARM AT: ${remindMoment.format("LLLL")}`);
+        params.message.channel.send(`(WIP) ALARM AT: ${remindMoment.format('LLLL')}`);
 
 
     }
