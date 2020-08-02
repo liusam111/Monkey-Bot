@@ -4,41 +4,37 @@ const axios = require('axios');
 module.exports = {
     SOLO_QUEUE: 'RANKED_SOLO_5x5',
     FLEX: 'RANKED_FLEX_SR',
+    ERROR_DNE: '404',
     PATCH: '10.14.1',
 
     getRegionURL(region){
-        switch(region.toLowerCase()){
-            case 'na':
+        switch(region.toUpperCase()){
+            case 'NA':
                 return 'na1';
-            case 'euw':
+            case 'EUW':
                 return 'euw1';
-            case 'eune':
+            case 'EUNE':
                 return 'eun1';
-            case 'lan':
+            case 'LAN':
                 return 'la1';
-            case 'las':
+            case 'LAS':
                 return 'la2';
-            case 'kr':
+            case 'KR':
                 return 'kr';
-            case 'jp':
+            case 'JP':
                 return 'jp1';
-            case 'br':
+            case 'BR':
                 return 'br1';
-            case 'tr':
+            case 'TR':
                 return 'tr1';
-            case 'oce':
+            case 'OCE':
                 return 'oc1';
-            case 'ru':
+            case 'RU':
                 return 'ru';
             default:
                 return '';
         }
     },
-
-    isValidRegionCode(region){
-        return this.getRegionURL(region) == '' ? false : true;
-    },
-
     
     getRankedData(rankedResponse, queue){
         for(let queueData of rankedResponse){
@@ -54,14 +50,21 @@ module.exports = {
         const URL = encodeURI(`https://${regionURL}.api.riotgames.com/${path}`);
         const tokenHeader = {'X-Riot-Token': RIOT_API_KEY}
         
-        const response = await axios.get(URL, {headers: tokenHeader});
+        try{
+            const response = await axios.get(URL, {headers: tokenHeader});
 
-        //TODO: Parse/describe errors based on error code
-        if(response.status != 200){
-            throw new Error(`Request failed with status code ${response.status}`);
-        };
-
-        return response.data;     
+            if(response.status != 200){
+                throw new Error(`Request failed with status code ${response.status}`);
+            };
+    
+            return response.data; 
+        } catch (err){
+            if(err.response.status == 404){
+                throw this.ERROR_DNE;
+            }
+            throw err;
+        }
+    
     },
 
     async getSummonerInfoByName(region, summonerName){

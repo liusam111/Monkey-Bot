@@ -1,36 +1,36 @@
 module.exports = {
 
+    USER: 'user',
+    CHANNEL: 'channel',
+
     /* 
     * Get the first mention of the specified type
     * Type defaults to user
     * Valid types: 'user', 'channel'
     * Does not support 'role'
     */
-    async getFirstMention(args, client, type){
+    async getFirstMention(params, type){
 
-        const mentionType = {
-            USER: 'user',
-            CHANNEL: 'channel'
-        };
 
-        let prefix = type == mentionType.CHANNEL ? '<#' : '<@';
+
+        let prefix = type == this.CHANNEL ? '<#' : '<@';
 
         
-        for(let i = 0; i < args.length; i++){
-            let mention = args[i];
+        for(let i = 0; i < params.args.length; i++){
+            let mention = params.args[i];
             if(mention.startsWith(prefix) && mention.endsWith('>')){
                 mention = mention.slice(2, -1);
 
                 let mentionResult;
 
-                if(type == mentionType.CHANNEL){
-                    mentionResult = await client.channels.fetch(mention);
+                if(type == this.CHANNEL){
+                    mentionResult = await params.client.channels.fetch(mention);
                 } else {
                     if(mention.startsWith('!')){
                         mention = mention.slice(1);
                     }
 
-                    mentionResult = await client.users.fetch(mention);
+                    mentionResult = await params.client.users.fetch(mention);
                 }
 
                 //If mentioned user/channel exists

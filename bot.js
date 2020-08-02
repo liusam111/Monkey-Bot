@@ -46,7 +46,7 @@ client.once('ready', () => {
 });
 
 client.on('message', async function(message) {
-
+    
     //Don't allow bots to run commands
     if(message.author.bot) return;
 
@@ -151,7 +151,7 @@ client.on('message', async function(message) {
         }
 
     } catch(error) {
-        console.error(error.message);
+        //console.error(error);
         message.reply('Whoops! Something broke internally. Lemme just log this error...');
     }
     

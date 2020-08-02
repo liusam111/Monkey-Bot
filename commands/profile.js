@@ -6,7 +6,7 @@ module.exports = {
     async execute(params){
         const general = require('./modules/module-general.js');
 
-        let user = await general.getFirstMention(params.args, params.client, 'user') || params.message.author;
+        let user = await general.getFirstMention(params, general.USER) || params.message.author;
 
         const Discord = require('discord.js');
         const timeSinceCreation = (Date.now() - user.createdTimestamp) / (DAYS_TO_SECS);

@@ -1,13 +1,14 @@
 module.exports = {
-    name: "setmain",
-    description: "Sets the main channel for the bot, only available to server mods",
+    name: 'setmain',
+    description: 'Sets the main channel for the bot, only available to server mods',
     guildOnly: true,
-    execute(message, args, client, database){
-        const helper = require("./helper/helper_general.js");
+    async execute(message, args, client, database){
+        /*
+        const helper = require('./helper/helper_general.js');
 
         //Check permissions
         if(!helper.isModerator(message.member)){
-            return message.channel.send("You do not have permission to use this command.");
+            return message.channel.send('You do not have permission to use this command.');
         }
 
         let guildId = message.guild.id;
@@ -17,7 +18,7 @@ module.exports = {
                 if(err) throw err;
 
                 if(!rows.length || !message.guild.channels.has(rows[0].mainchannelid)){
-                    return message.channel.send("This server does not have a main channel. Mention a channel using this command to set one.")
+                    return message.channel.send('This server does not have a main channel. Mention a channel using this command to set one.')
                 }
 
                 message.channel.send(`This server's main channel is <#${rows[0].mainchannelid}>.`);
@@ -25,10 +26,10 @@ module.exports = {
             });
         } else {
 
-            let newMain = helper.getFirstMention(args, client, "channel").id;
+            let newMain = helper.getFirstMention(args, client, 'channel').id;
 
             if(!message.guild.channels.has(newMain)){
-                return message.channel.send("Nice try. That channel isn't in this server.");
+                return message.channel.send('Nice try. That channel isn\'t in this server.');
             }
 
             //Save main channel id to database
@@ -48,5 +49,7 @@ module.exports = {
             });
             
         }
+        */
+       return;
     }
 }
