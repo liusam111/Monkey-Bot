@@ -1,8 +1,6 @@
 const riot = require('./module-riot-api.js');
 
 module.exports = {
-    FLAG_LINK: '-link',
-    FLAG_UNLINK: '-unlink',
     FLAG_REGION: '-region=',
     DEFAULT_REGION: 'NA',
 

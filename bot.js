@@ -2,7 +2,8 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const mysql = require('mysql');
-const {prefix, token, sqlpass} = require('./config.json');
+const remindCRUD = require('./commands/modules/module-remind-crud.js');
+const {prefix, token, sqlpass} = require('./data/config.json');
 
 //Constants
 const DEFAULT_COOLDOWN = 3;
@@ -15,6 +16,7 @@ const client = new Discord.Client();
 client.commands = new Discord.Collection();
 client.activeCommand = new Discord.Collection();
 client.messageRepeat = new Discord.Collection();
+client.remindTimeouts = new Discord.Collection();
 client.login(token);
 
 //Load commands from directory
@@ -37,8 +39,40 @@ var database = mysql.createConnection({
 });
 
 database.connect((err) => {
-    if(err) console.log(err);
+    if(err) throw err;
+
     console.log('Connected to Database!');
+
+    database.query(`SELECT id FROM curr_reminder_id`, (err, rows) => {
+        if(err) throw err;
+
+        //currReminderId should always exist, otherwise table was not set up correctly
+        client.currReminderId = rows[0].id;
+    });
+
+    database.query(`SELECT * FROM reminders`, (err, rows) => {
+        if(err) throw err;
+
+        let params = {
+            client: client,
+            database: database
+        };
+
+        for(let i = 0; i < rows.length; i++){
+            let reminderData = rows[i];
+            let reminder = {
+                id: reminderData.reminder_id,
+                userId: reminderData.user_id,
+                epoch: reminderData.epoch,
+                timezone: reminderData.timezone,
+                message: reminderData.message,
+            };
+            remindCRUD.setReminder(params, reminder);
+        }
+    });
+
+    console.log('Reminders Loaded!');
+
 });
 
 client.once('ready', () => {
@@ -140,18 +174,13 @@ client.on('message', async function(message) {
         }
 
         if(command.needsOriginal){
-            command.execute(originalArgs);
-
+            await command.execute(originalArgs);
         } else {
-            if(command.limitUser){
-                client.activeCommand.set(message.author.id);
-            }
-
             await command.execute(parsedArgs);
         }
 
     } catch(error) {
-        //console.error(error);
+        console.error(error);
         message.reply('Whoops! Something broke internally. Lemme just log this error...');
     }
     

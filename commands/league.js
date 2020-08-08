@@ -3,18 +3,60 @@ const league = require('./modules/module-league.js');
 const general = require('./modules/module-general.js');
 const Discord = require('discord.js');
 
+module.exports = {
+    name: 'league',
+    description: 'Shows Ranked Solo/Duo information of specified League username, also links usernames',
+    async execute(params){
+
+        let mention = await general.getFirstMention(params, general.USER);
+
+        if(!params.args.length || mention){
+            databaseLeagueProfile(params, mention);
+
+        } else {
+
+            try{
+                var userFlags = parseFlags(params.args);
+            } catch(err){
+                params.message.reply(err);
+                return;
+            }
+            
+            let region = userFlags.region;
+            let username = params.args.join(' ');
+            
+            if(userFlags.action_type == flags.LINK){
+                linkLeagueProfile(params, region, username);
+            } else if(userFlags.action_type == flags.UNLINK){
+                unlinkLeagueProfile(params);
+            } else {
+                let embed = await leagueProfile(region, username);
+                params.message.channel.send(embed);
+            }
+        
+        }
+    }
+}
+
+
+
 
 const actions = {
-    'SEARCH': 'search',
-    'LINK': 'link',
-    'UNLINK': 'unlink'
+    SEARCH: 'search',
+    LINK: 'link',
+    UNLINK: 'unlink'
+}
+
+const flags = {
+    LINK: '-link',
+    UNLINK: '-unlink'
 }
 
 function parseFlags(args){
 
     let result = {
-        'actionType': actions.SEARCH,
-        'region': league.DEFAULT_REGION
+        action_type: actions.SEARCH,
+        region: league.DEFAULT_REGION
     }
 
     let currArg = args[0];
@@ -37,8 +79,8 @@ function parseFlags(args){
         throw 'I\'m gonna need a username with that flag...';
     }
 
-    if(currArg == league.FLAG_LINK || currArg == league.FLAG_UNLINK){
-        result.actionType = currArg;
+    if(currArg == flags.LINK || currArg == flags.UNLINK){
+        result.action_type = currArg;
         args.shift();
     }
 
@@ -117,7 +159,7 @@ async function leagueProfile(region, username){
 
 function databaseLeagueProfile(params, mention){
     let id = mention ? mention.id : params.message.author.id;
-    params.database.query(`SELECT * FROM userinfo WHERE id = ${id}`, async (err, rows) => {
+    params.database.query(`SELECT * FROM user_info WHERE id = ${id}`, async (err, rows) => {
         if(err) throw err;
 
         //First time running this command, 
@@ -125,7 +167,7 @@ function databaseLeagueProfile(params, mention){
             if(mention){
                 params.message.channel.send(`${mention.username} hasn't linked their League account!`);
             } else {
-                params.message.channel.send(`You haven't linked your League account! Use \`~league -link YOUR_USERNAME\` to link it.`);
+                params.message.reply(`You haven't linked your League account! Use \`~league -link YOUR_USERNAME\` to link it.`);
             }
             return;
         }
@@ -138,17 +180,17 @@ function databaseLeagueProfile(params, mention){
 }
 
 function linkLeagueProfile(params, region, username){
-    params.database.query(`SELECT * FROM userinfo WHERE id = ${params.message.author.id}`, (err, rows) => {
+    params.database.query(`SELECT * FROM user_info WHERE id = ${params.message.author.id}`, (err, rows) => {
         if(err) throw err;
 
         if(!rows.length){
             params.database.query(
-                `INSERT INTO userinfo (id, username, region) VALUES (?, ?, ?)`,
-                [`${params.message.author.id}`, username, region]
+                `INSERT INTO user_info (id, username, region) VALUES (?, ?, ?)`,
+                [params.message.author.id, username, region]
             );
         } else {
             params.database.query(
-                `UPDATE userinfo SET username = ?, region = ? where id = ${params.message.author.id}`,
+                `UPDATE user_info SET username = ?, region = ? WHERE id = ${params.message.author.id}`,
                 [username, region],
             );
 
@@ -161,7 +203,7 @@ function linkLeagueProfile(params, region, username){
 }
 
 function unlinkLeagueProfile(params){
-    params.database.query(`SELECT * FROM userinfo WHERE id = ${params.message.author.id}`, (err, rows) => {
+    params.database.query(`SELECT * FROM user_info WHERE id = ${params.message.author.id}`, (err, rows) => {
         if(err) throw err;
 
         if(!rows.length || !rows[0].username){
@@ -169,44 +211,9 @@ function unlinkLeagueProfile(params){
             return;
         }
 
-        params.database.query(`UPDATE userinfo SET username = '', region = '' where id = ${params.message.author.id}`);
+        params.database.query(`UPDATE user_info SET username = '', region = '' WHERE id = ${params.message.author.id}`);
         params.message.reply('Your League username has been unlinked!');
     });
 
 
-}
-
-module.exports = {
-    name: 'league',
-    description: 'Shows Ranked Solo/Duo information of specified League username',
-    async execute(params){
-
-        let mention = await general.getFirstMention(params, general.USER);
-
-        if(!params.args.length || mention){
-            databaseLeagueProfile(params, mention);
-            return;
-        } else {
-
-            try{
-                var flags = parseFlags(params.args);
-            } catch(err){
-                params.message.channel.send(err);
-                return;
-            }
-            
-            let region = flags.region;
-            let username = params.args.join(' ');
-            
-            if(flags.actionType == league.FLAG_LINK){
-                linkLeagueProfile(params, region, username);
-            } else if(flags.actionType == league.FLAG_UNLINK){
-                unlinkLeagueProfile(params);
-            } else {
-                let embed = await leagueProfile(region, username);
-                params.message.channel.send(embed);
-            }
-        
-        }
-    }
 }

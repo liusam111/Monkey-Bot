@@ -1,4 +1,4 @@
-const RIOT_API_KEY = require('../../config.json').riot_api_key;
+const RIOT_API_KEY = require('../../data/config.json').riot_api_key;
 const axios = require('axios');
 
 module.exports = {

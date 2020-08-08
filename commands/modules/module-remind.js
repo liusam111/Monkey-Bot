@@ -2,17 +2,15 @@ const WK_TO_MS = 604800000;
 const DAY_TO_MS = 86400000;
 const HR_TO_MS = 3600000;
 const MIN_TO_MS = 60000;
-const minDateArgs = 2;
-const maxDateArgs = 3;
-const numTimeArgs = 2;
-const nextDOWOffset = 7;
-const validFormats = getValidFormats();
-const DEFAULT_TZ = 'America/Los_Angeles';
+const MIN_DATE_ARGS = 2;
+const MAX_DATE_ARGS = 3;
+const NUM_TIME_ARGS = 2;
+const NEXT_DOW = 7;
 
 const moment = require('moment');
 const tz = require('moment-timezone');
 
-function getValidFormats(){
+const validFormats = (function (){
     const validTimeFormats = ['h:mm a', 'h:mma', 'H:mm'];
     const validDateFormats = ['M-D', 'M/D', 'M-D-YYYY','M-D-YY','M/D/YYYY','M/D/YY'];
     const validMonthStringFormats = ['MMM D','MMMM D','MMM D YYYY','MMMM D YYYY', 'MMM D, YYYY','MMMM D, YYYY'];
@@ -27,18 +25,19 @@ function getValidFormats(){
         return accumulator;
     }, []);
     return validFormats;
-}
+})();
 
 
 module.exports = {
-    error: 'ERROR',
-    past: 'PAST',
+    ERROR: 'error',
+    PAST: 'past',
+    DEFAULT_TZ: 'America/Los_Angeles',
     validFormats,
 
     /* Get date string based on time offset arguments */
-    parseByOffset(args){
+    parseByOffset(args, timezone){
         if(args.length % 2 != 0){
-            return this.error;
+            return this.ERROR;
         }
 
         const weeks = /^w((ee)?ks?)?$/;
@@ -59,7 +58,7 @@ module.exports = {
             
             
             if(!this.isNumber(value) || value < 0){
-                return this.error;
+                return this.ERROR;
             }
 
             if(unitOfTime.match(unitRegex)){
@@ -71,11 +70,11 @@ module.exports = {
         }
 
         if(currArg < args.length || totalOffset < 1){
-            return this.error;
+            return this.ERROR;
         }
 
-        const now = moment.tz(DEFAULT_TZ);
-        const remindMoment = moment.tz(now.valueOf() + totalOffset, DEFAULT_TZ);
+        const now = moment.tz(timezone);
+        const remindMoment = moment.tz(now.valueOf() + totalOffset, timezone);
         return remindMoment.valueOf();
 
     },
@@ -86,11 +85,11 @@ module.exports = {
      * If no year given, defaults to current year if time hasn't already passed
      * and defaults to next year otherwise
      */
-    parseByDateTime(args){
-        const now = moment.tz(DEFAULT_TZ);
+    parseByDateTime(args, timezone){
+        const now = moment.tz(timezone);
         const dateArg = args.shift();
 
-        let timeString = args.length ? args.join(' ') : this.getCurrTime();
+        let timeString = args.length ? args.join(' ') : this.getCurrTime(timezone);
 
         const dateInput = dateArg.replace(/\//g, '-').split('-');
         const monthValue = dateInput[0];
@@ -98,14 +97,14 @@ module.exports = {
 
         let remindMoment;
         //Length is either 2 (no year) or 3 (specified year), enforced in main remindme function
-        if(dateInput.length == 2){
+        if(dateInput.length == MIN_DATE_ARGS){
             let dateString = `${monthValue}-${dateValue}-${now.year()}`;
             let momentString = `${dateString} ${timeString}`;
 
-            remindMoment = moment.tz(momentString, validFormats, true, DEFAULT_TZ);
+            remindMoment = moment.tz(momentString, validFormats, true, timezone);
 
             if(isNaN(remindMoment.valueOf())){
-                return this.error;
+                return this.ERROR;
             }
 
             if(remindMoment.valueOf() <= now.valueOf()){
@@ -117,14 +116,14 @@ module.exports = {
             let dateString = dateArg;
             let momentString = `${dateString} ${timeString}`;
 
-            remindMoment = moment.tz(momentString, validFormats, true, DEFAULT_TZ);
+            remindMoment = moment.tz(momentString, validFormats, true, timezone);
 
             if(isNaN(remindMoment.valueOf())){
-                return this.error;
+                return this.ERROR;
             }
 
             if(remindMoment.valueOf() <= now.valueOf()){
-                return this.past;
+                return this.PAST;
             }
         }
 
@@ -137,15 +136,15 @@ module.exports = {
      * Handles 12 hour clock HH:MM{AM/PM}, HH:MM {AM/PM} (with space between time and AM/PM)
      * and 24 hour clock HH:MM formats through Moment/Moment-Timezone parsing
      */
-    parseByTime(args){     
-        const now = moment.tz(DEFAULT_TZ);
+    parseByTime(args, timezone){     
+        const now = moment.tz(timezone);
 
-        const momentString = `${this.getCurrDate()} ${args.join(' ')}`;
-        const remindMoment = moment.tz(momentString, validFormats, true, DEFAULT_TZ);
+        const momentString = `${this.getCurrDate(timezone)} ${args.join(' ')}`;
+        const remindMoment = moment.tz(momentString, validFormats, true, timezone);
         
         //Invalid format
         if(isNaN(remindMoment.valueOf())){
-            return this.error;
+            return this.ERROR;
         }
 
         //Set for next day if time already passed
@@ -161,23 +160,23 @@ module.exports = {
      * If no time given, defaults to current time
      * Time is set based on next day of the week, will not set on the same day
      */
-    parseByDayOfWeek(args){
+    parseByDayOfWeek(args, timezone){
         const dayOfWeekArg = this.getDayOfWeek(args.shift());
 
         if(dayOfWeekArg == -1){
-            return this.error;
+            return this.ERROR;
         }
 
-        let timeString = args.length ? args.join(' ') : this.getCurrTime();
+        let timeString = args.length ? args.join(' ') : this.getCurrTime(timezone);
 
-        const momentString = `${this.getCurrDate()} ${timeString}`;
-        const remindMoment = moment.tz(momentString, validFormats, true, DEFAULT_TZ);
+        const momentString = `${this.getCurrDate(timezone)} ${timeString}`;
+        const remindMoment = moment.tz(momentString, validFormats, true, timezone);
 
         if(isNaN(remindMoment.valueOf())){
-            return this.error;
+            return this.ERROR;
         }
 
-        remindMoment.day(dayOfWeekArg + nextDOWOffset);
+        remindMoment.day(dayOfWeekArg + NEXT_DOW);
 
         return remindMoment.valueOf();
 
@@ -188,29 +187,59 @@ module.exports = {
      * Converts string to numeric month, day, year format so it can be based
      * as a Date/Time instead
      */
-    parseByMonthString(args){
-        const now = moment.tz(DEFAULT_TZ);
+    parseByMonthString(args, timezone){
+        const now = moment.tz(timezone);
 
         let month = this.getMonthFromString(args.shift()) + 1; //Returned month is 0 indexed
         let day = args.shift();
 
         //Just month, no other args
         if(!day){
-            return this.error;
+            return this.ERROR;
         }
 
-        let year = (args.length && this.isNumber(args[0])) ? args.shift() : now.year();
-        let timeString = args.length ? args.join(' ') : this.getCurrTime();
+        let year = (args.length && this.isNumber(args[0])) ? `/${args.shift()}` : '';
+        let timeString = args.length ? args.join(' ') : this.getCurrTime(timezone);
 
-        return this.parseByDateTime([`${month}/${day.replace(/,$/, '')}/${year}`, `${timeString}`]);
+        return this.parseByDateTime([`${month}/${day.replace(/,$/, '')}${year}`, `${timeString}`], timezone);
+    },
+
+
+
+    argsToEpoch(args, timezone){
+        const isNum = this.isNumber(args[0]);
+        const splitByTime = args[0].split(':');
+        const splitByDate = args[0].replace(/\//g, '-').split('-');
+        const dayOfWeek = this.getDayOfWeek(args[0]);
+        const monthString = this.getMonthFromString(args[0]);
+        
+        //Time Offset
+        if(isNum){
+            return this.parseByOffset(args, timezone);
+        //Date and Time
+        } else if(MIN_DATE_ARGS <= splitByDate.length && splitByDate.length <= MAX_DATE_ARGS){
+            return this.parseByDateTime(args, timezone);
+        //Only Time
+        } else if(splitByTime.length == NUM_TIME_ARGS){
+            return this.parseByTime(args, timezone);
+        //Day of Week
+        } else if(dayOfWeek != -1){
+            return this.parseByDayOfWeek(args, timezone);
+        //Month in String Format
+        } else if(monthString != -1){
+            return this.parseByMonthString(args, timezone);
+        } else {
+            return this.ERROR;
+        }
     },
 
 
     /*
      * Returns the current date in MM-DD-YYYY format
      */
-    getCurrDate(){
-        const now = moment.tz(DEFAULT_TZ);
+    getCurrDate(timezone){
+        const now = moment.tz(timezone);
+        
         const currMonth = now.month() + 1; //Month is 0 indexed
         const currDay = now.date();
         const currYear = now.year();
@@ -222,8 +251,8 @@ module.exports = {
     /*
      * Returns the current time in HH:MM format
      */
-    getCurrTime(){
-        const now = moment.tz(DEFAULT_TZ);
+    getCurrTime(timezone){
+        const now = moment.tz(timezone);
         const currHour = now.hour();
         const currMin = now.minute();
         
