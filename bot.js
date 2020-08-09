@@ -149,21 +149,12 @@ client.on('message', async function(message) {
         setTimeout(() => timestamps.delete(message.author.id), cooldownTime);
     }
 
-
-    originalArgs = {
+    params = {
         'message': message,
-        'args': original,
+        'args': command.needsOriginal ? original : args,
         'client': client,
         'database' : database
     }
-
-    parsedArgs = {
-        'message': message,
-        'args': args,
-        'client': client,
-        'database' : database
-    }
-
 
     //Command execution
     try{
@@ -173,11 +164,8 @@ client.on('message', async function(message) {
             return message.reply('Get that command out of my DMs.');
         }
 
-        if(command.needsOriginal){
-            await command.execute(originalArgs);
-        } else {
-            await command.execute(parsedArgs);
-        }
+        await command.execute(params);
+        
 
     } catch(error) {
         console.error(error);
