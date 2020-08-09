@@ -9,7 +9,6 @@ const CANCEL = '-cancel-';
 
 module.exports = {
     name: 'remindme',
-    description: 'DMs the user a remind message at the specified time',
     cooldown: 0.1,
 
     async execute(params){

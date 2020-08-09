@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'who ping me',
+    name: 'lolmatch',
     async execute(params){
 
         //Guam's server

@@ -5,7 +5,6 @@ const Discord = require('discord.js');
 
 module.exports = {
     name: 'league',
-    description: 'Shows Ranked Solo/Duo information of specified League username, also links usernames',
     async execute(params){
 
         let mention = await general.getFirstMention(params, general.USER);
@@ -109,7 +108,7 @@ async function leagueProfile(region, username){
     const title = `${summonerData.name} (${region})`;
     const level = `${summonerData.summonerLevel}`;
     const opgg = encodeURI(`https://${regionForURL}op.gg/summoner/userName=${summonerData.name}`);
-    const footer = 'Use the -region=XX flag to search different regions!';
+    const footer = 'Use the -r=XX flag to search different regions!';
     const profileIconPath = `./assets/${riot.PATCH}/img/profileicon/${summonerData.profileIconId}.png`;
     const profileIcon = new Discord.MessageAttachment(profileIconPath, 'profileIcon.png')
 

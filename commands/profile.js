@@ -2,7 +2,6 @@ const DAYS_TO_SECS = 86400000;
 
 module.exports = {
     name: 'profile',
-    description: 'Shows the first mentioned user\'s profile information, or the author\'s profile if no one is mentioned',
     async execute(params){
         const general = require('./modules/module-general.js');
 

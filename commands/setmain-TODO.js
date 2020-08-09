@@ -1,6 +1,5 @@
 module.exports = {
     name: 'setmain',
-    description: 'Sets the main channel for the bot, only available to server mods',
     guildOnly: true,
     async execute(message, args, client, database){
         /*

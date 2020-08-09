@@ -3,7 +3,6 @@ const validTimezones = require('../data/timezones.json').valid;
 
 module.exports = {
     name: 'timezone',
-    description: 'Views/sets user time zones for the remind command',
     async execute(params){
         params.database.query(`SELECT * FROM  timezones WHERE id = ${params.message.author.id}`, (err, rows) => {
             if(err) throw err;

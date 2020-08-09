@@ -1,6 +1,5 @@
 module.exports = {
     name: 'say',
-    description: 'Makes bot say the following text after the command',
     needsOriginal: true,
     async execute(params){
         if(!params.args.length){
