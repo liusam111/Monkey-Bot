@@ -1,7 +1,7 @@
 const riot = require('./module-riot-api.js');
 
 module.exports = {
-    FLAG_REGION: '-region=',
+    FLAG_REGION: '-r=',
     DEFAULT_REGION: 'NA',
 
     isValidRegionCode(region){
