@@ -11,11 +11,8 @@ module.exports = {
     */
     async getFirstMention(params, type){
 
-
-
         let prefix = type == this.CHANNEL ? '<#' : '<@';
 
-        
         for(let i = 0; i < params.args.length; i++){
             let mention = params.args[i];
             if(mention.startsWith(prefix) && mention.endsWith('>')){
@@ -59,6 +56,15 @@ module.exports = {
                         member.hasPermission('MANAGE_MESSAGES') ||
                         member.hasPermission('ADMINISTRATOR');
         return isModerator;
-    }
- 
+    },
+
+    /* 
+     * Checks whether the input is a number or not
+     * Excludes empty string
+     * */
+    isNumber(num){
+        if(num.match(/^[0-9]+$/)) return true;
+        return false;
+    },
+
 }

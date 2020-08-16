@@ -7,6 +7,7 @@ const MAX_DATE_ARGS = 3;
 const NUM_TIME_ARGS = 2;
 const NEXT_DOW = 7;
 
+const {isNumber} = require('./module-general.js');
 const moment = require('moment');
 const tz = require('moment-timezone');
 
@@ -26,6 +27,7 @@ const validFormats = (function (){
     }, []);
     return validFormats;
 })();
+
 
 
 module.exports = {
@@ -57,7 +59,7 @@ module.exports = {
             let unitRegex = keys[i];
             
             
-            if(!this.isNumber(value) || value < 0){
+            if(!isNumber(value) || value < 0){
                 return this.ERROR;
             }
 
@@ -198,7 +200,7 @@ module.exports = {
             return this.ERROR;
         }
 
-        let year = (args.length && this.isNumber(args[0])) ? `/${args.shift()}` : '';
+        let year = (args.length && isNumber(args[0])) ? `/${args.shift()}` : '';
         let timeString = args.length ? args.join(' ') : this.getCurrTime(timezone);
 
         return this.parseByDateTime([`${month}/${day.replace(/,$/, '')}${year}`, `${timeString}`], timezone);
@@ -207,7 +209,7 @@ module.exports = {
 
 
     argsToEpoch(args, timezone){
-        const isNum = this.isNumber(args[0]);
+        const isNum = isNumber(args[0]);
         const splitByTime = args[0].split(':');
         const splitByDate = args[0].replace(/\//g, '-').split('-');
         const dayOfWeek = this.getDayOfWeek(args[0]);
@@ -332,12 +334,4 @@ module.exports = {
         return -1;
     },
 
-    /* 
-     * Checks whether the input is a number or not
-     * Excludes empty string
-     * */
-    isNumber(num){
-        if(num.match(/^[0-9]+$/)) return true;
-        return false;
-    }
 }

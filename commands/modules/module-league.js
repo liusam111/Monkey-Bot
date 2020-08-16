@@ -1,18 +1,11 @@
+const {getFlagValue} = require('./module-general.js');
 const riot = require('./module-riot-api.js');
 
 module.exports = {
-    FLAG_REGION: '-r=',
     DEFAULT_REGION: 'NA',
 
     isValidRegionCode(region){
-        return riot.getRegionURL(region) == '' ? false : true;
-    },
-
-    parseRegionArg(regionArg){
-        regionArg = regionArg.replace(this.FLAG_REGION, '').toUpperCase();
-        if(this.isValidRegionCode(regionArg)){
-            return regionArg;
-        }
+        return riot.getPlatformId(region) == '' ? false : true;
     },
 
     rankToInt(roman){
@@ -26,12 +19,9 @@ module.exports = {
             case 'IV':
                 return 4;
             default:
-                return '';
+                return -1;
         }
     },
 
-    usernameDatabaseLookup(username){
-        return;
-    },
 }
 

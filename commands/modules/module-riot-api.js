@@ -1,13 +1,15 @@
-const RIOT_API_KEY = require('../../data/config.json').riot_api_key;
+const {RIOT_API_KEY, LOL_PATCH} = require('../../data/config.json');
+const {data: championData} = require(`../../lol_assets/${LOL_PATCH}/data/en_US/champion.json`);
+const {data: summonerSpellData} = require(`../../lol_assets/${LOL_PATCH}/data/en_US/summoner.json`);
 const axios = require('axios');
+
 
 module.exports = {
     SOLO_QUEUE: 'RANKED_SOLO_5x5',
     FLEX: 'RANKED_FLEX_SR',
     ERROR_DNE: '404',
-    PATCH: '10.14.1',
 
-    getRegionURL(region){
+    getPlatformId(region){
         switch(region.toUpperCase()){
             case 'NA':
                 return 'na1';
@@ -36,6 +38,29 @@ module.exports = {
         }
     },
     
+    getChampionById(id){
+        if(id == -1){
+            return "None";
+        }
+
+        for(let champion of Object.values(championData)){
+            if(champion.key == id){
+                //Riot sometimes uses internal names as keys, but 'name' is what players see
+                return champion.name;
+            }
+        }
+        return 'New Champ';
+    },
+
+    getSummonerSpellById(id){
+        for(let spell of Object.values(summonerSpellData)){
+            if(spell.key == id){
+                return spell.name;
+            }
+        }
+        return 'New Champ';
+    },
+
     getRankedData(rankedResponse, queue){
         for(let queueData of rankedResponse){
             if(queueData.queueType == queue){
@@ -46,7 +71,7 @@ module.exports = {
     },
 
     async requestFromAPI(region, path){
-        const regionURL = this.getRegionURL(region);
+        const regionURL = this.getPlatformId(region);
         const URL = encodeURI(`https://${regionURL}.api.riotgames.com/${path}`);
         const tokenHeader = {'X-Riot-Token': RIOT_API_KEY}
         
@@ -67,7 +92,7 @@ module.exports = {
     
     },
 
-    async getSummonerInfoByName(region, summonerName){
+    async getSummonerDataByName(region, summonerName){
         const SUMMONER_INFO_PATH = `/lol/summoner/v4/summoners/by-name/${summonerName}`;
 
         const response = await this.requestFromAPI(region, SUMMONER_INFO_PATH);

@@ -1,0 +1,74 @@
+[
+    {
+        "gameMode": "CLASSIC",
+        "description": "Summoner's Rift"
+    },
+    {
+        "gameMode": "ODIN",
+        "description": "Dominion"
+    },
+    {
+        "gameMode": "ARAM",
+        "description": "ARAM"
+    },
+    {
+        "gameMode": "TUTORIAL",
+        "description": "Tutorial"
+    },
+    {
+        "gameMode": "URF",
+        "description": "URF"
+    },
+    {
+        "gameMode": "DOOMBOTSTEEMO",
+        "description": "Doom Bots"
+    },
+    {
+        "gameMode": "ONEFORALL",
+        "description": "One for All"
+    },
+    {
+        "gameMode": "ASCENSION",
+        "description": "Ascension"
+    },
+    {
+        "gameMode": "FIRSTBLOOD",
+        "description": "Snowdown Showdown"
+    },
+    {
+        "gameMode": "KINGPORO",
+        "description": "Legend of the Poro King"
+    },
+    {
+        "gameMode": "SIEGE",
+        "description": "Nexus Siege"
+    },
+    {
+        "gameMode": "ASSASSINATE",
+        "description": "Blood Hunt Assassin"
+    },
+    {
+        "gameMode": "ARSR",
+        "description": "All Random Summoner's Rift"
+    },
+    {
+        "gameMode": "DARKSTAR",
+        "description": "Dark Star: Singularity"
+    },
+    {
+        "gameMode": "STARGUARDIAN",
+        "description": "Star Guardian Invasion"
+    },
+    {
+        "gameMode": "PROJECT",
+        "description": "PROJECT: Hunters"
+    },
+    {
+        "gameMode": "GAMEMODEX",
+        "description": "Nexus Blitz"
+    },
+    {
+        "gameMode": "ODYSSEY",
+        "description": "Odyssey: Extraction"
+    }
+]
