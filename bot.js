@@ -138,10 +138,11 @@ client.on('message', async function(message) {
     }
 
     params = {
-        'message': message,
-        'args': command.needsOriginal ? original : args,
-        'client': client,
-        'database' : database
+        message: message,
+        args: command.needsOriginal ? original : args,
+        client: client,
+        database: database,
+        source: message.content
     }
 
     //Command execution

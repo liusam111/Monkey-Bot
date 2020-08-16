@@ -5,6 +5,7 @@ const flags = require('./modules/module-flags.js')
 const moment = require('moment');
 const tz = require('moment-timezone');
 const {valid: validTimezones} = require('../data/timezones.json');
+const {PREFIX} = require('../data/config.json');
 
 
 module.exports = {
@@ -29,7 +30,12 @@ module.exports = {
 
                 remindCRUD.verifyReminder(params, reminderId, (rows) => {
                     let newReminder = rows[0];
-                    newReminder.message = params.args.join(' ');
+
+                    let commandRegex = RegExp(`${PREFIX}${this.name}`,'i');
+                    let flagRegex = RegExp(`${flag}`, 'i');
+
+                    newReminder.message = params.source.replace(commandRegex, '').replace(flagRegex, '').replace(`${reminderId}`, '').trim();
+
                     remindCRUD.editReminder(params, newReminder);
                     //TODO: Use embed
                     params.message.reply(`Reminder message has been changed to\`\`\`${newReminder.message}\`\`\``);

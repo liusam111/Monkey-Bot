@@ -4,15 +4,15 @@ module.exports = {
     INVALID: 'invalid',
 
     LEAGUE: {
-        REGION: ['-region=', '-r='],
+        REGION: ['--region=', '-r='],
         LINK: '-link',
         UNLINK: '-unlink',
     },
 
     REMIND: {
-        TZ: ['-timezone=', '-tz='],
-        EDIT_TIME: ['-edittime', '-et'],
-        EDIT_MSG: ['-editmsg', '-em'],
+        TZ: ['--timezone=', '-tz='],
+        EDIT_TIME: ['--edittime', '-et'],
+        EDIT_MSG: ['--editmessage','--editmsg', '-em'],
         DELETE: ['-delete', '-d'],
     },
 
