@@ -4,9 +4,9 @@
 
 ## New Features
 
-### `~remind`: Month String Format
+### `~remindme`: Month String Format
 
-The `~remind` command now supports the Month String format, for people who prefer to entering the month over the `MM-DD-YYYY` format! This includes common abbreviations of the 12 months. Examples of this format can be found below:
+The `~remindme` command now supports the Month String format, for people who prefer to entering the month over the `MM-DD-YYYY` format! This includes common abbreviations of the 12 months. Examples of this format can be found below:
 ```
 ~remindme august 9
 ~remindme aug 9 12:30 pm
