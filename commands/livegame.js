@@ -13,7 +13,7 @@ const team = {
 }
 
 module.exports = {
-    name: 'lolmatch',
+    name: 'livematch',
     async execute(params){
 
         let mention = await general.getFirstMention(params, general.USER);
