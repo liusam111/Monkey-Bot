@@ -19,7 +19,6 @@ client.messageRepeat = new Discord.Collection();
 client.leagueUsernames = new Discord.Collection();
 client.reminderIds = new Discord.Collection();
 client.reminderTimeouts = new Discord.Collection();
-client.reminderCounts = new Discord.Collection();
 client.userTimezones = new Discord.Collection();
 client.login(DISCORD_TOKEN);
 
@@ -55,18 +54,10 @@ client.once('ready', () => {
         database: database
     };
 
-    init.initReminderId(initParams);
-    init.loadReminderCounts(initParams);
-    init.loadReminders(initParams);
-    console.log('Reminders Loaded!');
-
-    init.loadUserTimezones(initParams);
-    console.log('Timezones Loaded');
-
-    init.loadLeagueUsernames(initParams);
-    console.log('Linked League Usernames Loaded!');
-
-    console.log('Ready!');
+    init.currReminderId(initParams);
+    init.reminders(initParams);
+    init.userTimezones(initParams);
+    init.leagueUsernames(initParams);
 });
 
 client.on('message', async function(message) {
@@ -155,7 +146,7 @@ client.on('message', async function(message) {
             return message.reply('Get that command out of my DMs.');
         }
 
-        let temp = await command.execute(params);
+        await command.execute(params);
         
 
     } catch(err) {

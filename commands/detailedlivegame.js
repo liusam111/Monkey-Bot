@@ -9,13 +9,9 @@ const Discord = require('discord.js');
 const MIN_TO_MS = 60000;
 const SEC_TO_MS = 1000;
 
-const team = {
-    BLUE: 100,
-    RED: 200
-}
 
 module.exports = {
-    name: 'livegame',
+    name: 'dlg',
     async execute(params){
 
         let mention = await general.getFirstMention(params, general.USER);
@@ -55,10 +51,11 @@ module.exports = {
 
 
 
-        let summonerData, liveMatchData;
+        let summonerData, liveMatchData, rankedData;
         try{
             summonerData = await riot.getSummonerDataByName(region, username);
             liveMatchData = await riot.getCurrentMatch(region, summonerData.id);
+            rankedData = await league.parseParticipantRankedData(region, liveMatchData.participants);
         } catch(err){
             if(err == riot.ERROR_DNE){
                 return params.message.reply(`I can\'t find a match for \`${username} (${region})\`. Either they are not in game, or the username/region is incorrect.`);
@@ -76,7 +73,7 @@ module.exports = {
         }
 
         let teamData = league.parseParticipantData(username, liveMatchData.participants, liveMatchData.bannedChampions);
-
+        
         let queueId = liveMatchData.gameQueueConfigId;
         let map, gameMode;
         for(let queue of queues){
@@ -100,7 +97,7 @@ module.exports = {
             .setDescription(embedDescription)
 
         for(let team of [riot.TEAMS.BLUE, riot.TEAMS.RED]){
-            let teamStrings = league.formatTeamStrings(teamData[team]);
+            let teamStrings = league.formatDetailedTeamStrings(teamData[team], rankedData);
 
             if(team == riot.TEAMS.BLUE){
                 embed.addField(`${emotes.BlueTeam} Blue Team`, teamStrings.players, true);
@@ -108,7 +105,8 @@ module.exports = {
                 embed.addField(`${emotes.RedTeam} Red Team`, teamStrings.players, true)
             }
 
-            embed.addField('Spells', teamStrings.spells, true)
+            embed.addField('Rank (Solo/Duo)', teamStrings.ranks, true)
+            embed.addField('Win Rate', teamStrings.winrates, true)
             
             if(teamStrings.bans){
                 embed.addField('Bans', teamStrings.bans)

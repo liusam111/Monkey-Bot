@@ -5,8 +5,29 @@ const axios = require('axios');
 
 
 module.exports = {
-    SOLO_QUEUE: 'RANKED_SOLO_5x5',
-    FLEX: 'RANKED_FLEX_SR',
+    QUEUES: {
+        SOLO: 'RANKED_SOLO_5x5',
+        FLEX: 'RANKED_FLEX_SR',
+    },
+    
+    RANKS: {
+        UNRANKED: 'unranked',
+        IRON: 'iron',
+        BRONZE: 'bronze',
+        SILVER: 'silver',
+        GOLD: 'gold',
+        PLATINUM: 'platinum',
+        DIAMOND: 'diamond',
+        MASTER: 'master',
+        GRANDMASTER: 'grandmaster',
+        CHALLENGER: 'challenger',
+    },
+
+    TEAMS: {
+        BLUE: 100,
+        RED: 200
+    },
+
     ERROR_DNE: '404',
 
     getPlatformId(region){
@@ -49,7 +70,7 @@ module.exports = {
                 return champion.name;
             }
         }
-        return 'New Champ';
+        throw new Error('Outdated lol_assets');
     },
 
     getSummonerSpellById(id){
@@ -58,7 +79,7 @@ module.exports = {
                 return spell.name;
             }
         }
-        return 'New Champ';
+        throw new Error('Outdated lol_assets');
     },
 
     getRankedData(rankedResponse, queue){
@@ -69,6 +90,35 @@ module.exports = {
         }
         return null;
     },
+
+    getProfileIcon(iconId, pathToRoot){
+        return `${pathToRoot}/lol_assets/${LOL_PATCH}/img/profileicon/${iconId}.png`;
+    },
+
+    getRankIcon(tier, rank, pathToRoot){
+        tier = tier.toLowerCase();
+        rank = rank ? rank.toLowerCase() : '';
+
+        let pathToIcons = `${pathToRoot}/lol_assets/extra_icons/rank_icons`;
+
+        switch(tier){
+            case this.RANKS.UNRANKED:
+                return `${pathToIcons}/${this.RANKS.UNRANKED}.png`
+            case this.RANKS.MASTER:
+                return `${pathToIcons}/${this.RANKS.MASTER}.png`;
+            case this.RANKS.GRANDMASTER:
+                return `${pathToIcons}/${this.RANKS.GRANDMASTER}.png`;
+            case this.RANKS.CHALLENGER:
+                return `${pathToIcons}/${this.RANKS.CHALLENGER}.png`;
+            default:
+                return `${pathToIcons}/${tier}_${rank}.png`;
+        }
+    },
+
+
+
+
+
 
     async requestFromAPI(region, path){
         const regionURL = this.getPlatformId(region);
@@ -84,7 +134,7 @@ module.exports = {
     
             return response.data; 
         } catch (err){
-            if(err.response.status == 404){
+            if(err.response && err.response.status == 404){
                 throw this.ERROR_DNE;
             }
             throw err;
@@ -100,7 +150,7 @@ module.exports = {
         return response;
     },
 
-    async getRankedInfo(region, encryptedSummonerId){
+    async getRankedResponse(region, encryptedSummonerId){
         const RANKED_INFO_PATH = `/lol/league/v4/entries/by-summoner/${encryptedSummonerId}`;
         
         const response = await this.requestFromAPI(region, RANKED_INFO_PATH);

@@ -1,7 +1,7 @@
 const {isNumber} = require('./modules/module-general.js');
 const remind = require('./modules/module-remind.js');
 const remindCRUD = require('./modules/module-remind-crud.js');
-const flags = require('./modules/module-flags.js')
+const options = require('./modules/module-options.js');
 const moment = require('moment');
 const tz = require('moment-timezone');
 const {valid: validTimezones} = require('../data/timezones.json');
@@ -12,12 +12,12 @@ module.exports = {
     name: 'reminders',
     async execute(params){
 
-        let flag = params.args.shift() || '';
+        let option = params.args.shift() || '';
         let idArg = params.args.shift();
         let reminderId = isNumber(idArg || '') ? parseInt(idArg) : NaN;
 
         switch(true){
-            case flags.REMIND.EDIT_MSG.includes(flag):
+            case options.REMIND.EDIT_MSG.includes(option):
                 if(isNaN(reminderId)){
                     params.message.reply('That\'s not a valid ID!');
                     return;
@@ -32,9 +32,9 @@ module.exports = {
                     let newReminder = rows[0];
 
                     let commandRegex = RegExp(`${PREFIX}${this.name}`,'i');
-                    let flagRegex = RegExp(`${flag}`, 'i');
+                    let optionRegex = RegExp(`${option}`, 'i');
 
-                    newReminder.message = params.source.replace(commandRegex, '').replace(flagRegex, '').replace(`${reminderId}`, '').trim();
+                    newReminder.message = params.source.replace(commandRegex, '').replace(optionRegex, '').replace(`${reminderId}`, '').trim();
 
                     remindCRUD.editReminder(params, newReminder);
                     //TODO: Use embed
@@ -45,7 +45,7 @@ module.exports = {
 
 
 
-            case flags.REMIND.EDIT_TIME.includes(flag):
+            case options.REMIND.EDIT_TIME.includes(option):
                 if(isNaN(reminderId)){
                     params.message.reply('That\'s not a valid ID!');
                     return;
@@ -58,9 +58,9 @@ module.exports = {
                 let savedTimezone = params.client.userTimezones.get(params.message.author.id) || remind.DEFAULT_TZ;
                 let timezoneArg = savedTimezone;
 
-                let timezoneFlagValue = flags.getFlagValue(params.args[0], flags.REMIND.TZ);
-                if(timezoneFlagValue){
-                    timezoneArg = validTimezones[timezoneFlagValue.toLowerCase()];
+                let timezoneOptionVal = options.getOptionValue(params.args[0], options.REMIND.TZ);
+                if(timezoneOptionVal){
+                    timezoneArg = validTimezones[timezoneOptionVal.toLowerCase()];
                     if(timezoneArg){
                         params.args.shift();
                     } else {
@@ -97,7 +97,7 @@ module.exports = {
 
 
 
-            case flags.REMIND.DELETE.includes(flag):
+            case options.REMIND.DELETE.includes(option):
                 if(isNaN(reminderId)){
                     params.message.reply('That\'s not a valid ID!');
                     return;
@@ -112,8 +112,8 @@ module.exports = {
 
 
 
-            case flag.startsWith('-'):
-                params.message.reply('Invalid Flag!');
+            case option.startsWith('-'):
+                params.message.reply('Invalid Options!');
                 break;
 
 

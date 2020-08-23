@@ -1,6 +1,6 @@
 const remind = require('./modules/module-remind.js');
 const remindCRUD = require('./modules/module-remind-crud.js');
-const flags = require('./modules/module-flags.js')
+const options = require('./modules/module-options.js');
 const moment = require('moment');
 const tz = require('moment-timezone');
 const Discord = require('discord.js');
@@ -20,7 +20,8 @@ module.exports = {
             return;
         }
 
-        let userReminderCount = params.client.reminderCounts.get(params.message.author.id) || 0;
+        let userRemindersId = params.client.reminderIds.get(params.message.author.id);
+        let userReminderCount =  userRemindersId ? userRemindersId.length : 0;
         if(userReminderCount >= MAX_REMINDERS){
             params.message.reply(`I can\'t create more than ${MAX_REMINDERS} reminders per person!`);
             return;
@@ -29,9 +30,9 @@ module.exports = {
         let savedTimezone = params.client.userTimezones.get(params.message.author.id) || remind.DEFAULT_TZ;
         let timezoneArg = savedTimezone;
 
-        let timezoneFlagValue = flags.getFlagValue(params.args[0], flags.REMIND.TZ);
-        if(timezoneFlagValue){
-            timezoneArg = validTimezones[timezoneFlagValue.toLowerCase()];
+        let timezoneOptionVal = options.getOptionValue(params.args[0], options.REMIND.TZ);
+        if(timezoneOptionVal){
+            timezoneArg = validTimezones[timezoneOptionVal.toLowerCase()];
             if(timezoneArg){
                 params.args.shift();
             } else {

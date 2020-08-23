@@ -7,14 +7,22 @@ module.exports = {
 
     //TODO: Use memory cache
     verifyReminder(params, reminderId, verifiedAction){
+        
+        let userReminderIds = params.client.reminderIds.get(params.message.author.id) || [];
+
+        if(!userReminderIds.includes(reminderId)){
+            params.message.reply('You don\'t have a reminder with that ID!');
+        }
+
         params.database.query(
             `SELECT * FROM reminders WHERE rid = ? AND uid = ?;`,
             [reminderId, params.message.author.id],
             (err, rows) => {
                 if (err) throw err;
 
+                //Theoretically, userReminderIds check guarantees rows.length > 0, but just in case...
                 if(!rows.length){
-                    params.message.reply('You don\'t have a reminder with that ID!');
+                    params.message.reply('You don\'t have a reminder with that ID!'); 
                 } else {
                     verifiedAction(rows);
                 }
@@ -24,12 +32,8 @@ module.exports = {
 
     createReminder(params, epoch, timezone, message){
         let userId = params.message.author.id;
-        let newCount = (params.client.reminderCounts.get(userId) || 0) + 1;
-        params.client.reminderCounts.set(userId, newCount);
-
+        
         let newReminderId = ++params.client.currReminderId;
-        params.database.query(`UPDATE curr_reminder_id SET id = ${newReminderId};`);
-
         let reminder = {
             rid: newReminderId,
             uid: params.message.author.id,
@@ -38,6 +42,11 @@ module.exports = {
             message: message
         }
 
+        let userReminderIds = params.client.reminderIds.get(userId) || [];
+        userReminderIds.push(newReminderId);
+        params.client.reminderIds.set(userId, userReminderIds);
+
+        params.database.query(`UPDATE curr_reminder_id SET id = ${newReminderId};`);
         params.database.query(
             `INSERT INTO reminders (rid, uid, epoch, timezone, message) VALUES (?, ?, ?, ?, ?);`,
             [reminder.rid, reminder.uid, reminder.epoch, reminder.timezone, reminder.message],
@@ -112,8 +121,8 @@ module.exports = {
     },
 
     deleteReminder(params, userId, reminderId){
-        let newCount = params.client.reminderCounts.get(userId) - 1;
-        params.client.reminderCounts.set(userId, newCount);
+        let userReminderIds = params.client.reminderIds.get(userId);
+        userReminderIds.splice(userReminderIds.indexOf(reminderId), 1);
         
         let timeout = params.client.reminderTimeouts.get(reminderId);
         if(timeout){

@@ -3,26 +3,17 @@ const remindCRUD = require('./module-remind-crud.js');
 // initParams: client, database
 module.exports = {
 
-    initReminderId(initParams){
+    currReminderId(initParams){
         initParams.database.query(`SELECT id FROM curr_reminder_id;`, (err, rows) => {
             if(err) throw err;
 
             //currReminderId should always exist, otherwise table was not set up correctly
             initParams.client.currReminderId = rows[0].id;
+            console.log('Current Reminder ID Loaded!');
         });
     },
 
-    loadReminderCounts(initParams){
-        initParams.database.query(`SELECT uid, COUNT(*) AS count FROM reminders GROUP BY uid;`, (err, rows) => {
-            if(err) throw err;
- 
-            for(let countInfo of rows){
-                initParams.client.reminderCounts.set(countInfo.uid, countInfo.count);
-            }
-        });
-    },
-
-    loadReminders(initParams){
+    reminders(initParams){
         initParams.database.query(`SELECT * FROM reminders;`, (err, rows) => {
             if(err) throw err;
 
@@ -31,27 +22,42 @@ module.exports = {
              * sent directly into setReminder
              */
             for(let reminder of rows){
+
+                let userReminders = initParams.client.reminderIds.get(reminder.uid) || [];
+                userReminders.push(reminder.rid.toString());
+                initParams.client.reminderIds.set(reminder.uid, userReminders);
+
                 remindCRUD.setReminder(initParams, reminder);
             }
+
+            console.log('User Reminders Loaded!');
         });
     },
 
-    loadUserReminderIds(initParams){
-        //TODO
-    },
-
-    loadUserTimezones(initParams){
+    userTimezones(initParams){
         initParams.database.query(`SELECT * from timezones;`, (err, rows) => {
             if(err) throw err;
  
-            for(let timezoneInfo of rows){
-                initParams.client.userTimezones.set(timezoneInfo.id, timezoneInfo.timezone);
+            for(let timezoneData of rows){
+                initParams.client.userTimezones.set(timezoneData.id, timezoneData.timezone);
             }
+            console.log('Timezones Loaded!');
         });  
     },
 
-    loadLeagueUsernames(initParams){
-        //TODO
+    leagueUsernames(initParams){
+        initParams.database.query(`SELECT * from lol_names;`, (err, rows) => {
+            if(err) throw err;
+
+            for(let usernameData of rows){
+                let summoner = {
+                    region: usernameData.region,
+                    username: usernameData.username
+                }
+                initParams.client.leagueUsernames.set(usernameData.id, summoner);
+            }
+            console.log('League Usernames Loaded!');
+        });
     }
 
 }
