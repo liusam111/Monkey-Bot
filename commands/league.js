@@ -6,7 +6,7 @@ module.exports = {
     name: 'league',
     async execute(params){
 
-        let mention = await general.getFirstMention(params, general.USER);
+        let mention = await general.getFirstMention(params, general.MENTION_TYPE.USER);
 
         let region, username;
         if(!params.args.length || mention){
@@ -24,9 +24,7 @@ module.exports = {
 
             region = linkedSummoner.region;
             username = linkedSummoner.username;
-            let embed = await league.searchProfile(region, username);
-            params.message.channel.send(embed);
-
+            league.searchProfile(region, username);;
 
         } else {
             let userOptions;
@@ -45,8 +43,7 @@ module.exports = {
             } else if(userOptions.action == options.LEAGUE.UNLINK){
                 league.unlinkProfile(params);
             } else {
-                let embed = await league.searchProfile(region, username);
-                params.message.channel.send(embed);
+                league.searchProfile(region, username);
             }
         }
     }

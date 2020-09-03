@@ -12,8 +12,9 @@ module.exports = {
     name: 'reminders',
     async execute(params){
 
-        let option = params.args.shift() || '';
+
         let idArg = params.args.shift();
+        let option = params.args.shift() || '';
         let reminderId = isNumber(idArg || '') ? parseInt(idArg) : NaN;
 
         switch(true){

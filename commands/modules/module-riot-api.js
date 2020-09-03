@@ -28,7 +28,31 @@ module.exports = {
         RED: 200
     },
 
-    ERROR_DNE: '404',
+    ERRORS:{
+        DNE: 404,
+    },
+
+    REQUEST_TYPE: {
+        SEARCH_USER: 'search',
+        LIVE_GAME: 'livegame'
+    },
+
+    handleAPIError(params, err, requestType, region, username){
+        if(err = this.ERRORS.DNE){
+            switch(requestType){
+                case this.REQUEST_TYPE.SEARCH_USER:
+                    params.message.channel.send(`I can\'t find \`${username} (${region})\`. Make sure the username and region are correct!`);
+                    return;
+                case this.REQUEST_TYPE.LIVE_GAME:
+                    params.message.channel.send(`Seems like \`${username} (${region})\` isn't in a game!`);
+                    return;
+                default:
+                    throw err;
+            }
+        } else {
+            throw err;
+        }
+    },
 
     getPlatformId(region){
         switch(region.toUpperCase()){
@@ -66,7 +90,7 @@ module.exports = {
 
         for(let champion of Object.values(championData)){
             if(champion.key == id){
-                //Riot sometimes uses internal names as keys, but 'name' is what players see
+                //Riot sometimes uses internal names as keys, but 'name' is what players refer to
                 return champion.name;
             }
         }
@@ -80,15 +104,6 @@ module.exports = {
             }
         }
         throw new Error('Outdated lol_assets');
-    },
-
-    getRankedData(rankedResponse, queue){
-        for(let queueData of rankedResponse){
-            if(queueData.queueType == queue){
-                return queueData;
-            }
-        }
-        return null;
     },
 
     getProfileIcon(iconId, pathToRoot){
@@ -115,7 +130,14 @@ module.exports = {
         }
     },
 
-
+    getRankedData(rankedResponse, queue){
+        for(let queueData of rankedResponse){
+            if(queueData.queueType == queue){
+                return queueData;
+            }
+        }
+        return null;
+    },
 
 
 
@@ -127,15 +149,13 @@ module.exports = {
         
         try{
             const response = await axios.get(URL, {headers: tokenHeader});
-
             if(response.status != 200){
-                throw new Error(`Request failed with status code ${response.status}`);
+                throw new Error(`Riot API request failed with status code ${response.status}`);
             };
-    
             return response.data; 
         } catch (err){
             if(err.response && err.response.status == 404){
-                throw this.ERROR_DNE;
+                throw this.ERRORS.DNE;
             }
             throw err;
         }
@@ -143,28 +163,27 @@ module.exports = {
     },
 
     async getSummonerDataByName(region, summonerName){
-        const SUMMONER_INFO_PATH = `/lol/summoner/v4/summoners/by-name/${summonerName}`;
-
-        const response = await this.requestFromAPI(region, SUMMONER_INFO_PATH);
-
+        const SUMMONER_ENDPOINT = `/lol/summoner/v4/summoners/by-name/${summonerName}`;
+        const response = await this.requestFromAPI(region, SUMMONER_ENDPOINT);
         return response;
     },
 
     async getRankedResponse(region, encryptedSummonerId){
-        const RANKED_INFO_PATH = `/lol/league/v4/entries/by-summoner/${encryptedSummonerId}`;
-        
-        const response = await this.requestFromAPI(region, RANKED_INFO_PATH);
-
+        const RANKED_ENDPOINT = `/lol/league/v4/entries/by-summoner/${encryptedSummonerId}`;
+        const response = await this.requestFromAPI(region, RANKED_ENDPOINT);
         return response;
     },
 
     async getCurrentMatch(region, encryptedSummonerId){
-        const MATCH_REQUEST_PATH = `/lol/spectator/v4/active-games/by-summoner/${encryptedSummonerId}`;
-
-        const response = await this.requestFromAPI(region, MATCH_REQUEST_PATH);
-
+        const MATCH_ENDPOINT = `/lol/spectator/v4/active-games/by-summoner/${encryptedSummonerId}`;
+        const response = await this.requestFromAPI(region, MATCH_ENDPOINT);
         return response;
     },
 
+    async getChampionMastery(region, encryptedSummonerId){
+        const MASTERY_ENDPOINT = `/lol/champion-mastery/v4/champion-masteries/by-summoner/${encryptedSummonerId}`;
+        const response = await this.requestFromAPI(region, MASTERY_ENDPOINT);
+        return response;
+    },
 
 }

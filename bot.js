@@ -1,14 +1,12 @@
-//Dependencies
 const fs = require('fs');
 const Discord = require('discord.js');
 const mysql = require('mysql');
 const init = require('./commands/modules/module-init.js')
+const {TO_MS} = require('./commands/modules/module-general.js');
 const {PREFIX, DISCORD_TOKEN, SQL_PASSWORD} = require('./data/config.json');
 
-//Constants
+
 const DEFAULT_COOLDOWN = 3;
-const SECS_TO_MS = 1000;
-const SECS_TO_MINS = 60000;
 VALID_STATUS = 200;
 
 //Discord client setup
@@ -87,13 +85,8 @@ client.on('message', async function(message) {
     }
 
     //Only run commands with prefix, but check repeat for messages without prefix
-    if(!message.content.startsWith(PREFIX)){
-        client.commands.get('repeat').execute({
-            'message': message,
-            'client': client
-        });
-        return;
-    }
+    if(!message.content.startsWith(PREFIX)) return;
+
 
     console.log(message.content); //For development purposes only
     
@@ -107,7 +100,6 @@ client.on('message', async function(message) {
 
     if(!command || command.cannotRun) return;
 
-
     //Set cooldowns for commands
     if(!cooldowns.has(command.name)){
         cooldowns.set(command.name, new Discord.Collection());
@@ -115,13 +107,13 @@ client.on('message', async function(message) {
 
     const now = Date.now();
     const timestamps = cooldowns.get(command.name);
-    const cooldownTime = (command.cooldown || DEFAULT_COOLDOWN) * SECS_TO_MS;
+    const cooldownTime = (command.cooldown || DEFAULT_COOLDOWN) * TO_MS.SEC;
 
     if(timestamps.has(message.author.id)){
         const expireTime = timestamps.get(message.author.id) + cooldownTime;
 
         if(now < expireTime){
-            const timeLeft = (expireTime - now) / SECS_TO_MS;
+            const timeLeft = (expireTime - now) / TO_MS.SEC;
             return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing \`${PREFIX}${command.name}\``)
         }
     } else {

@@ -1,4 +1,5 @@
 const riot = require('./module-riot-api.js');
+const general = require('./module-general.js');
 const options = require('./module-options.js');
 const Discord = require('discord.js');
 const emotes = require('../../data/emotes.json')
@@ -10,8 +11,47 @@ module.exports = {
         return riot.getPlatformId(region) == '' ? false : true;
     },
 
+    async getSummonerFromArgs(params){
+        let mention = await general.getFirstMention(params, general.MENTION_TYPE.USER);
 
+        if(!params.args.length || mention){
+            let userId = mention ? mention.id : params.message.author.id;
+            let linkedSummoner = params.client.leagueUsernames.get(userId);
+
+            if(!linkedSummoner){
+                if(mention){
+                    params.message.channel.send(`${mention.username} hasn't linked their League account!`);
+                } else{
+                    params.message.reply(`You haven't linked your League account! Use \`~league ${options.LEAGUE.LINK} YOUR_USERNAME\` to link it.`);
+                }
+                return null;
+            }
+
+            return linkedSummoner;
+
+        } else {
+            region = this.DEFAULT_REGION;
+        
+            let regionOptionVal = options.getOptionValue(params.args[0], options.LEAGUE.REGION);
+            if(regionOptionVal){
+                if(this.isValidRegionCode(regionOptionVal)){
+                    region = regionOptionVal.toUpperCase();
+                    params.args.shift();
+                } else {
+                    params.message.reply('That\'s not a valid region!');
+                    return null;
+                }
+            }
     
+            username = params.args.join(' ');
+
+            return {
+                username: username,
+                region: region
+            };
+        }
+    },
+
     parseProfileSearchOptions(args){
         let result = {
             action: 'search',
@@ -54,11 +94,8 @@ module.exports = {
             summonerData = await riot.getSummonerDataByName(region, username);
             rankedResponse = await riot.getRankedResponse(region, summonerData.id);
         } catch (err){
-            if(err == riot.ERROR_DNE){
-                return `I can\'t find \`${username} (${region})\`. Make sure the username and region is correct.`;
-            } else {
-                throw err;
-            }
+            riot.handleAPIError(params, err, riot.REQUEST_TYPE.SEARCH_USER, region, username);
+            return;
         }
     
         const PROFILE_ICON_NAME = 'profileIcon.png';
@@ -121,7 +158,8 @@ module.exports = {
                 .setThumbnail(`attachment://${RANK_ICON_NAME}`)
                 .setFooter(footer); 
         }
-        return embed;
+        
+        params.message.channel.send(embed);
     },
 
     async linkProfile(params, region, username){
@@ -130,11 +168,8 @@ module.exports = {
             summonerData = await riot.getSummonerDataByName(region, username);
             username = summonerData.name; //Use API username capitalization
         } catch(err){
-            if(err == riot.ERROR_DNE){
-                params.message.channel.send(`I can\'t find \`${username} (${region})\`. Make sure the username and region is correct.`);
-                return;
-            }
-            throw err;
+            riot.handleAPIError(params, err, riot.REQUEST_TYPE.SEARCH_USER, region, username);
+            return;
         }
 
         let linkedData = params.client.leagueUsernames.get(params.message.author.id);
@@ -176,7 +211,7 @@ module.exports = {
 
 
 
-    parseParticipantData(targetPlayer, participants, bans){
+    parseParticipantData(targetPlayer, participants, participantBans){
         let teamData = {};
         for(let team of Object.values(riot.TEAMS)){
             teamData[team] = {
@@ -201,9 +236,7 @@ module.exports = {
             teamData[player.teamId].players.push(playerData);
         }
 
-        let orderedBans = bans.sort((a, b) => {return a.pickTurn - b.pickTurn;});
-                
-        for(let ban of orderedBans){
+        for(let ban of participantBans){
             teamData[ban.teamId].bans.push(emotes[riot.getChampionById(ban.championId)]);
         }
 

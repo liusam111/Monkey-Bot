@@ -1,14 +1,12 @@
-const DAYS_TO_SECS = 86400000;
+const general = require('./modules/module-general.js');
+const Discord = require('discord.js');
+//TODO: Format creation time with Moment TZ
 
 module.exports = {
     name: 'profile',
     async execute(params){
-        const general = require('./modules/module-general.js');
-
-        let user = await general.getFirstMention(params, general.USER) || params.message.author;
-
-        const Discord = require('discord.js');
-        const timeSinceCreation = (Date.now() - user.createdTimestamp) / (DAYS_TO_SECS);
+        let user = await general.getFirstMention(params, general.MENTION_TYPE.USER) || params.message.author;
+        const timeSinceCreation = (Date.now() - user.createdTimestamp) / (general.TO_MS.DAY / general.TO_MS.SEC);
         const avatarURL = user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 });
 
         // Created embed to display profile
@@ -18,7 +16,7 @@ module.exports = {
             .setThumbnail(avatarURL)
             .addField('ID:', user.id)
             .addField('Created At: ', user.createdAt)
-            .addField('Days Since Creation: ', timeSinceCreation.toFixed(0))
+            .addField('Days Since Creation: ', Math.floor(timeSinceCreation))
             .addField('Profile Picture: ', avatarURL);
 
                 

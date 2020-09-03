@@ -1,17 +1,23 @@
 module.exports = {
 
-    USER: 'user',
-    CHANNEL: 'channel',
+    TO_MS: {
+        YEAR: 31556952000,
+        MONTH: 2592000000,
+        WEEK: 604800000,
+        DAY: 86400000,
+        HOUR: 3600000,
+        MIN: 60000,
+        SEC: 1000
+    },
 
-    /* 
-    * Get the first mention of the specified type
-    * Type defaults to user
-    * Valid types: 'user', 'channel'
-    * Does not support 'role'
-    */
+    MENTION_TYPE: {
+        USER: 'user',
+        CHANNEL: 'channel'
+    },
+
     async getFirstMention(params, type){
 
-        let prefix = type == this.CHANNEL ? '<#' : '<@';
+        let prefix = type == this.MENTION_TYPE.CHANNEL ? '<#' : '<@';
 
         for(let i = 0; i < params.args.length; i++){
             let mention = params.args[i];
@@ -20,7 +26,7 @@ module.exports = {
 
                 let mentionResult;
 
-                if(type == this.CHANNEL){
+                if(type == this.MENTION_TYPE.CHANNEL){
                     mentionResult = await params.client.channels.fetch(mention);
                 } else {
                     if(mention.startsWith('!')){
@@ -38,16 +44,6 @@ module.exports = {
         }
     },
 
-    /* 
-    * Checks if user can be considered a moderator
-    * Moderators have the following permissions:
-    * MANAGE_CHANNELS
-    * MANAGE_GUILD
-    * KICK_MEMBERS
-    * BAN_MEMBERS
-    * MANAGE_MESSAGES
-    * ADMINISTRATOR
-    */
     isModerator(member) {
         let isModerator = member.hasPermission('MANAGE_CHANNELS') ||
                         member.hasPermission('MANAGE_GUILD') ||
@@ -58,12 +54,27 @@ module.exports = {
         return isModerator;
     },
 
-    /* 
-     * Checks whether the input is a number or not
-     * Excludes empty string
-     * */
+
+    timeSince(epoch){
+        let timeDiff = Date.now().valueOf() - epoch;
+
+        let timeStrings = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second'];
+        let conversionVals = Object.values(this.TO_MS).sort((a, b) => {return a > b;});
+        
+        for(let i = 0; i < conversionVals.length; i++){
+            let interval = Math.floor(timeDiff / conversionVals[i]);
+
+            if(interval > 0){
+                return `${interval} ${timeStrings[i]}${interval != 1 ? 's' : ''} ago`;
+            }
+        }
+
+        return 'Now';
+
+    },
+
     isNumber(num){
-        if(num.match(/^[0-9]+$/)) return true;
+        if(num.toString().match(/^[0-9]+$/)) return true;
         return false;
     },
 

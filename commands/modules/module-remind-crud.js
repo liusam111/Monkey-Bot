@@ -5,7 +5,6 @@ const Discord = require('discord.js');
 
 module.exports = {
 
-    //TODO: Use memory cache
     verifyReminder(params, reminderId, verifiedAction){
         
         let userReminderIds = params.client.reminderIds.get(params.message.author.id) || [];

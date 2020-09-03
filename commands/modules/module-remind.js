@@ -1,13 +1,9 @@
-const WK_TO_MS = 604800000;
-const DAY_TO_MS = 86400000;
-const HR_TO_MS = 3600000;
-const MIN_TO_MS = 60000;
 const MIN_DATE_ARGS = 2;
 const MAX_DATE_ARGS = 3;
 const NUM_TIME_ARGS = 2;
 const NEXT_DOW = 7;
 
-const {isNumber} = require('./module-general.js');
+const {isNumber, TO_MS} = require('./module-general.js');
 const moment = require('moment');
 const tz = require('moment-timezone');
 
@@ -48,7 +44,7 @@ module.exports = {
         const mins = /^m(in(ute)?s?)?$/;
 
         const keys = [weeks, days, hours, mins];
-        const values = [WK_TO_MS, DAY_TO_MS, HR_TO_MS, MIN_TO_MS];
+        const values = [TO_MS.WEEK, TO_MS.DAY, TO_MS.HOUR, TO_MS.MIN];
 
         let totalOffset = 0;
 
