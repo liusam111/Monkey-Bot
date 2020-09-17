@@ -9,7 +9,7 @@ module.exports = {
 
         if(!params.args.length){
             let timezone = savedTimezone || remind.DEFAULT_TZ;
-            params.message.reply(`You current timezone is set to \`${timezone}\`\n\nYou can use \`~timezone [YOUR_TIMEZONE]\` to change this. Valid timezones can be found under \`TZ database name\` here:\n<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`);
+            params.message.reply(`You current timezone is set to \`${timezone}\`\n\nYou can use \`~timezone [your_timezone]\` to change this. Valid timezones can be found under \`TZ database name\` here:\n<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`);
         } else {
 
             let timezone = validTimezones[params.args[0].toLowerCase()];

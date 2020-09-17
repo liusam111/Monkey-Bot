@@ -17,7 +17,7 @@ module.exports = {
                 if(mention){
                     params.message.channel.send(`${mention.username} hasn't linked their League account!`);
                 } else{
-                    params.message.reply(`You haven't linked your League account! Use \`~league ${options.LEAGUE.LINK} YOUR_USERNAME\` to link it.`);
+                    params.message.reply(`You haven't linked your League account! Use \`~league ${options.LEAGUE.LINK} your_username\` to link it.`);
                 }
                 return;
             }

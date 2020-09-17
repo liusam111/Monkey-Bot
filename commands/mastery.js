@@ -48,9 +48,9 @@ module.exports = {
             .setColor('#fffff0')
             .setTitle(`Champion Mastery: ${summonerData.name} (${region})`)
             .setDescription('This player\'s highest mastery champions are:')
-            .addField('Champion', championStrings.join('\n'),true)
-            .addField('Mastery Level/Points', masteryStrings.join('\n'),true)
-            .addField('Last Played', lastPlayedStrings.join('\n'),true)
+            .addField('Champion', championStrings.join('\n'), true)
+            .addField('Mastery Level/Points', masteryStrings.join('\n'), true)
+            .addField('Last Played', lastPlayedStrings.join('\n'), true)
 
         params.message.channel.send(embed);
     }

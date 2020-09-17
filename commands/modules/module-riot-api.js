@@ -94,7 +94,33 @@ module.exports = {
                 return champion.name;
             }
         }
-        throw new Error('Outdated lol_assets');
+        throw new Error('Outdated lol_assets or not a numeric ID');
+    },
+
+    getChampionLabel(name, label){
+        //Most people refer to "Nunu & Willump" simply as "Nunu"
+        if(name.toLowerCase() == 'nunu'){
+            name = 'Nunu & Willump'
+        }
+
+        for(let champion of Object.values(championData)){
+            if(champion.name.toLowerCase().replace('\'', '') == name.toLowerCase()){
+                return champion[label];
+            }
+        }
+        throw new Error('Outdated lol_assets or invalid champion name');
+    },
+
+    getChampionId(name){
+        //Riot API stores internal name as "id" and numeric values as "key"
+        //For consistency with other commands, we will save numeric values as "id"
+        return this.getChampionLabel(name, 'key');
+    },
+
+    getChampionInternalName(name){
+        //Riot API stores internal name as "id" and numeric values as "key"
+        //For consistency with other commands, we will save numeric values as "id"
+        return this.getChampionLabel(name, 'id');
     },
 
     getSummonerSpellById(id){
@@ -103,11 +129,15 @@ module.exports = {
                 return spell.name;
             }
         }
-        throw new Error('Outdated lol_assets');
+        throw new Error('Outdated lol_assets or not a numeric ID');
     },
 
     getProfileIcon(iconId, pathToRoot){
         return `${pathToRoot}/lol_assets/${LOL_PATCH}/img/profileicon/${iconId}.png`;
+    },
+
+    getChampionIcon(internalName, pathToRoot){
+        return `${pathToRoot}/lol_assets/${LOL_PATCH}/img/champion/${internalName}.png`;
     },
 
     getRankIcon(tier, rank, pathToRoot){
@@ -129,6 +159,8 @@ module.exports = {
                 return `${pathToIcons}/${tier}_${rank}.png`;
         }
     },
+
+
 
     getRankedData(rankedResponse, queue){
         for(let queueData of rankedResponse){
@@ -185,5 +217,11 @@ module.exports = {
         const response = await this.requestFromAPI(region, MASTERY_ENDPOINT);
         return response;
     },
+
+    async getChampionRotation(region){
+        const ROTATION_ENDPOINT = `/lol/platform/v3/champion-rotations`;
+        const response = await this.requestFromAPI(region, ROTATION_ENDPOINT);
+        return response;
+    }
 
 }
