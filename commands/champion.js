@@ -33,19 +33,19 @@ module.exports = {
         let stats = championData.stats;
 
         let statsLeftCol = [
-            `**HP:** ${stats.hp} (+ ${stats.hpperlevel})`,
-            `**HP Regen:** ${stats.hpregen} (+ ${stats.hpregenperlevel})`,
-            `**${championData.partype}:** ${stats.mp} (+ ${stats.mpperlevel})`,
-            `**${championData.partype} Regen:** ${stats.mpregen} (+ ${stats.mpregenperlevel})`,
+            `**HP:** ${stats.hp} (+${stats.hpperlevel})`,
+            `**HP Regen:** ${stats.hpregen} (+${stats.hpregenperlevel})`,
+            `**${championData.partype}:** ${stats.mp} (+${stats.mpperlevel})`,
+            `**${championData.partype} Regen:** ${stats.mpregen} (+${stats.mpregenperlevel})`,
             `**Movement Speed: ** ${stats.movespeed}`,
         ]
 
         let statsRightCol = [
-            `**Attack Damage:** ${stats.attackdamage} (+ ${stats.attackdamageperlevel})`,
-            `**Attack Speed:** ${stats.attackspeed} (+ ${stats.attackspeedperlevel})`,
+            `**Attack Damage:** ${stats.attackdamage} (+${stats.attackdamageperlevel})`,
+            `**Attack Speed:** ${stats.attackspeed} (+${stats.attackspeedperlevel})`,
             `**Attack Range:** ${stats.attackrange}`,
-            `**Armor:** ${stats.armor} (+ ${stats.armorperlevel})`,
-            `**Magic Resist: ** ${stats.spellblock} (+ ${stats.spellblockperlevel})`,
+            `**Armor:** ${stats.armor} (+${stats.armorperlevel})`,
+            `**Magic Resist: ** ${stats.spellblock} (+${stats.spellblockperlevel})`,
         ]
 
         let skills = [
