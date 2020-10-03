@@ -65,7 +65,7 @@ module.exports = {
         const filter = m => m.author.id === params.message.author.id;
         const collector = params.message.channel.createMessageCollector(filter, { max: 1, time: TIMEOUT });
 
-        params.message.reply(`Reminder will be set at \`${remindMoment.format('LLLL')}\`.\n\nEnter your reminder message, or send \`${CANCEL}\`' (case-sensitive) to cancel creation. You have 30 seconds...GO!`)
+        params.message.reply(`Reminder will be set at \`${remindMoment.format('LLLL')}\`.\n\nEnter your reminder message, or send \`${CANCEL}\` (case-sensitive) to cancel creation. You have 30 seconds...GO!`)
         collector.on('collect', m => {
             if(m.content == CANCEL){
                 collector.stop('cancel');

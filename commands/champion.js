@@ -1,7 +1,4 @@
-const general = require('./modules/module-general.js');
 const riot = require('./modules/module-riot-api.js');
-const league = require('./modules/module-league.js');
-const emotes = require('../data/emotes.json');
 const Discord = require('discord.js');
 const {LOL_PATCH} = require('../data/config.json');
 
@@ -18,18 +15,18 @@ module.exports = {
         //Remove apostrophes so champions like Kha'Zix can by typed as "KhaZix"
         let rawChampionString = params.args.join(' ').replace('\'', '');
 
-        let championInternalName;
+        let champion;
         try{
-            championInternalName = riot.getChampionInternalName(rawChampionString);
+            champion = riot.getChampionNames(rawChampionString);
         } catch(err){
             params.message.reply('I couldn\'t find that champion! Either you mistyped the champion, or my data is on the wrong patch');
             return
         }
 
         const CHAMPION_ICON_NAME = 'Champion.png';
-        const championData = require(`../lol_assets/${LOL_PATCH}/data/en_US/champion/${championInternalName}.json`).data[championInternalName];
+        const championData = require(`../lol_assets/${LOL_PATCH}/data/en_US/champion/${champion.internalName}.json`).data[champion.internalName];
         const championIcon = new Discord.MessageAttachment(
-            riot.getChampionIcon(championInternalName, './'), 
+            riot.getChampionIcon(champion.internalName, './'), 
             CHAMPION_ICON_NAME
         );
 
@@ -68,7 +65,7 @@ module.exports = {
             .addField('Stats', statsLeftCol.join('\n'), true)
             .addField('\u200b', statsRightCol.join('\n'), true)
             .addField('Skills', skills.join('\n'))
-            .setFooter('View skill information using \'~skill champion [passive/p/q/w/e/r]\'!')
+            .setFooter('View skill information using \'~skill champion [passive/p/q/w/e/r/ult]\'!')
 
 
 

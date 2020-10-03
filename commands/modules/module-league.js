@@ -152,7 +152,7 @@ module.exports = {
                 .setTitle(title)
                 .setURL(opgg)
                 .addField('Level', level)
-                .addField('Ranked Solo/Duo', `${riot.RANKS.UNRANKED[0].toUpperCase()}${riot.RANKS.UNRANKED.slice(1)}`)
+                .addField('Ranked Solo/Duo', `${general.capitalize(riot.RANKS.UNRANKED)}`)
                 .attachFiles([profileIcon, rankIcon])
                 .setImage(`attachment://${PROFILE_ICON_NAME}`)
                 .setThumbnail(`attachment://${RANK_ICON_NAME}`)
@@ -254,7 +254,7 @@ module.exports = {
 
             if(rankedData){
                 //Change from all caps to first letter uppercase;
-                let tier = `${rankedData.tier[0]}${rankedData.tier.slice(1).toLowerCase()}`;
+                let tier = `${general.capitalize(rankedData.tier)}`;
                 let rank = [riot.RANKS.MASTER, riot.RANKS.GRANDMASTER, riot.RANKS.CHALLENGER]
                     .includes(tier.toLowerCase()) ? '' : rankedData.rank;
 
@@ -266,7 +266,7 @@ module.exports = {
                 playerRankedData[player.summonerName].hotStreak = rankedData.hotStreak;
                 playerRankedData[player.summonerName].winrate = `**${winPercent}%** (${wins}W | ${losses}L)`;
             } else {
-                let tier = `${riot.RANKS.UNRANKED[0].toUpperCase()}${riot.RANKS.UNRANKED.slice(1)}`
+                let tier = `${general.capitalize(riot.RANKS.UNRANKED)}`
 
                 playerRankedData[player.summonerName].rank = `${emotes[tier]} ${tier}`;
                 playerRankedData[player.summonerName].hotStreak = false;

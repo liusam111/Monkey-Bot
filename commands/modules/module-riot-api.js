@@ -97,30 +97,23 @@ module.exports = {
         throw new Error('Outdated lol_assets or not a numeric ID');
     },
 
-    getChampionLabel(name, label){
+    getChampionNames(inputName){
         //Most people refer to "Nunu & Willump" simply as "Nunu"
-        if(name.toLowerCase() == 'nunu'){
-            name = 'Nunu & Willump'
+        if(inputName.toLowerCase() == 'nunu'){
+            inputName = 'Nunu & Willump'
         }
 
         for(let champion of Object.values(championData)){
-            if(champion.name.toLowerCase().replace('\'', '') == name.toLowerCase()){
-                return champion[label];
+            if(champion.name.toLowerCase().replace('\'', '') == inputName.toLowerCase()){
+                //Riot API stores internal name as "id" and numeric values as "key"
+                //For consistency with other commands, we save numeric values as "id"
+                return {
+                    displayName: champion.name,
+                    internalName: champion.id
+                };
             }
         }
         throw new Error('Outdated lol_assets or invalid champion name');
-    },
-
-    getChampionId(name){
-        //Riot API stores internal name as "id" and numeric values as "key"
-        //For consistency with other commands, we will save numeric values as "id"
-        return this.getChampionLabel(name, 'key');
-    },
-
-    getChampionInternalName(name){
-        //Riot API stores internal name as "id" and numeric values as "key"
-        //For consistency with other commands, we will save numeric values as "id"
-        return this.getChampionLabel(name, 'id');
     },
 
     getSummonerSpellById(id){
@@ -138,6 +131,14 @@ module.exports = {
 
     getChampionIcon(internalName, pathToRoot){
         return `${pathToRoot}/lol_assets/${LOL_PATCH}/img/champion/${internalName}.png`;
+    },
+
+    getSkillIcon(imageName, pathToRoot){
+        return `${pathToRoot}/lol_assets/${LOL_PATCH}/img/spell/${imageName}`;
+    },
+
+    getPassiveIcon(imageName, pathToRoot){
+        return `${pathToRoot}/lol_assets/${LOL_PATCH}/img/passive/${imageName}`;
     },
 
     getRankIcon(tier, rank, pathToRoot){
